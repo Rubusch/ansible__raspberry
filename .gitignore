@@ -1,0 +1,11 @@
+## backup files
+*~
+*.orig
+
+## objects, artefacts,...
+\#*\#
+*.o
+
+## hide devel folders
+TODO
+README
