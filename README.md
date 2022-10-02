@@ -52,6 +52,40 @@ $ udisksctl mount -b /dev/sdj2
 $ sudo meld ./rootfs/etc /media/user/rootfs/etc
 $ sudo meld ./rootfs/home /media/user/rootfs/home
 $ sudo meld ./rootfs/root /media/user/rootfs/root
+```
+
+secrets and credentials: prepare a folder ``secret`` as follows  
+
+```
+$ tree ./secret/ -a
+./secret/
+    ├── etc
+    │   ├── network
+    │   │   └── interfaces
+    │   └── wpa_supplicant
+    │       └── wpa_supplicant.conf
+    └── home
+        └── pi
+            ├── .gitconfig
+            └── .ssh
+                ├── authorized_keys
+                ├── config
+                ├── enclustra
+                │   └── id_ed25519__enclustra__2022
+                ├── id_ed25519__github2022
+                ├── id_ed25519__github2022.pub
+                ├── id_ed25519__rpi4
+                ├── id_ed25519__rpi4.pub
+                └── known_hosts
+
+$ sudo cp -arf ./secret/etc/* /media/user/rootfs/etc/
+$ sudo cp -arf ./secret/home/pi/.gitconfig /media/user/rootfs/home/pi/
+$ sudo cp -arf ./secret/home/pi/.ssh /media/user/rootfs/home/pi/
+
+$ cd /media/user/rootfs/home/pi
+$ ln -s /usr/local .local
+$ sudo chown 1000:1000 -R ./
+$ cd -
 
 $ udisksctl unmount -b /dev/sdj2
 ```
