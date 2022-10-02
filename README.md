@@ -15,8 +15,14 @@ $ pip3 install --user ansible
 
 edit /etc/ansible/hosts  
 ```
+$ cat /etc/ansible/hosts 
 [raspi]
 10.1.10.222
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=pi
+#ansible_ssh_pass=xdr5XDR%
 ```
 
 ## Prepare SD card
@@ -41,6 +47,7 @@ $ udisksctl mount -b /dev/sdj1
     Mounted /dev/sdj1 at /media/user/boot
 
 $ meld ./rootfs/boot/config.txt /media/user/boot/config.txt
+
 $ udisksctl unmount -b /dev/sdj1
 ```
 
@@ -90,17 +97,17 @@ $ cd -
 $ udisksctl unmount -b /dev/sdj2
 ```
 
-TODO: setup user pi  
-TODO: setup ssh keys  
-TODO: setup individualized configs (.gitconfig)  
+Install SD card, and configure networking on the board, expect raspi up and running on eth/10.1.10.222 or wlan/dhcp, in case check with nmap e.g. for some IP
+expected in subnet 192.168.123.0/24   
 
-Install SD card, and configure networking on the board.  
+```
+$ nmap -sn 192.168.123.0/24
+    ...
+    -> something with Raspberry pi...
+    ...
+```
 
-TODO: set up networking (fix ip 10.1.10.222/8) w/ running dnsmasq on eth0  
-TODO: let dhcp client running on wlan0  
-
-
-Now the device should be available via ssh.   
+Now the device should be available via ssh  
 ```
 $ ansible all -m ping
 ```
