@@ -1,0 +1,108 @@
+- hosts: all
+  become: 'yes'
+  vars:
+    user:
+      - name: "pi"
+        password: "xdr5XDR%"
+        #ssh_key: "ssh-rsa"
+    packages:
+      - vim
+      - emacs
+      - wget
+      - htop
+      - tig
+      - zlib1g-dev
+      - g++
+      - build-essential
+      - sudo
+      - libssl-dev
+      - bison
+      - flex
+      - bc
+      - libncurses5-dev
+      - libelf-dev
+      - python3-all
+      - python3-pip
+      - rsync
+      - binutils
+      - unzip
+      - bzip2
+      - make
+      - gcc
+      - cpio
+      - libc6-dev
+      - fakeroot
+      - udev
+      - hdparm
+      - xmlto
+      - perl
+      - wget
+      - curl
+      - bin86
+      - patch
+      - doxygen
+      - python
+      - mercurial
+      - kmod
+      - fonts-noto-cjk
+      - autoconf
+      - libtool
+      - libtool-bin
+      - aptitude
+      - bsdmainutils
+      - i2c-tools
+      - device-tree-compiler
+      - graphviz
+      - u-boot-tools
+      - codespell
+      - clang-format
+      - clang-tools
+      - clang-tidy
+      - astyle
+      - exuberant-ctags
+      - tree
+      - mc
+      - colordiff
+      - dos2unix
+      - chrpath
+      - diffstat
+      - gawk
+      - texinfo
+      - libsdl1.2-dev
+      - xterm
+      - screen
+      - emacs-goodies-el
+      - emacs-goodies-extra-el
+      - exuberant-ctags
+      - git-all
+      - labgrid
+  tasks:
+    - name: Change password for default user
+      user:
+        name: pi
+        password:  "{{ 'item.password' | password_hash('sha512') }}"
+        state: present
+    - name: Stop rfkill blocking
+      shell:
+        "sudo rfkill unblock all"
+      register: os_info
+    - name: Start wifi
+      shell:
+        "sudo ip link set wlan0 up"
+      register: os_info
+    - name: Request dhcp IP
+      shell:
+        "sudo dhclient -v wlan0"
+      register: os_info
+    - name: Ensure a list of packages installed
+      apt:
+        name: "{{ packages }}"
+        state: present
+    - name: Enable systemd services
+      systemd:
+        name: ssh.service
+        enabled: true
+        masked: no
+    - name: All done!
+      debug:
+        msg: Packages have been successfully installed
