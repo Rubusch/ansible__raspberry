@@ -109,7 +109,13 @@ $ nmap -sn 192.168.123.0/24
 
 Now the device should be available via ssh  
 ```
+$ cd ./ansible
 $ ansible all -m ping
+```
+
+Execute ansible provisioning
+```
+$ ansible-playbook ./setup.yml
 ```
 
 
