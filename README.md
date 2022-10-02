@@ -2,8 +2,7 @@
 
 ## References
 
-https://www.raspberry-pi-geek.de/ausgaben/rpg/2018/04/raspberry-pi-farm-mit-ansible-automatisieren/
-
+https://opensource.com/article/20/9/raspberry-pi-ansible
 
 
 ## Preparation
@@ -11,9 +10,7 @@ https://www.raspberry-pi-geek.de/ausgaben/rpg/2018/04/raspberry-pi-farm-mit-ansi
 On host PC  
 
 ```
-$ sudo apt-add-repository -y ppa:ansible/ansible
-$ sudo apt-get update
-$ sudo apt-get install -y ansible
+$ pip3 install --user ansible
 ```
 
 edit /etc/ansible/hosts  
@@ -22,27 +19,38 @@ edit /etc/ansible/hosts
 10.1.10.222
 ```
 
+## Prepare SD card
 
-Raspi OS image for Raspi 3b [64 bit]  
+Raspi OS image for Raspi 3b [64 bit], plug SD card in reader    
 ```
 $ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2022-09-26/2022-09-22-raspios-bullseye-arm64-lite.img.xz
-$ tar xJf 2022-09-22-raspios-bullseye-arm64-lite.img.xz
-```
-
-(legacy) Raspi OS image for Raspi 3b [32 bit]  
-```
-$ wget https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-09-26/2022-09-22-raspios-bullseye-armhf-lite.img.xz
-$ tar xJf raspios_lite_armhf-2022-09-26/2022-09-22-raspios-bullseye-armhf-lite.img.xz$
-```
-
-prepare SD card  
-```
+$ export RASPIMG=2022-09-22-raspios-bullseye-arm64-lite.img.xz
+$ unxz "$RASPIMG"
 $ lsblk
-   -> /dev/sdd
-$ sudo dd if=./2017-04-10-raspbian-jessie-lite.img of=/dev/sdd
+   ...
+   -> /dev/sdj
+   ...
+$ sudo dd if="$RASPIMG" of=/dev/sdj bs=4M conv=fdatasync status=progress
 ```
 
-individualization  
+individualization and adjust in case   
+```
+$ udisksctl mount -b /dev/sdj1
+    Mounted /dev/sdj1 at /media/user/boot
+
+$ meld ./rootfs/boot/config.txt /media/user/boot/config.txt
+$ udisksctl unmount -b /dev/sdj1
+```
+
+mount rootfs and adjust configs in case   
+```
+$ udisksctl mount -b /dev/sdj2
+    Mounted /dev/sdj2 at /media/user/rootfs
+
+
+$ udisksctl unmount -b /dev/sdj2
+```
+
 TODO: copy config to /boot/config.txt  
 TODO: setup user pi  
 TODO: setup ssh keys  
@@ -78,3 +86,11 @@ $ ansible-playbook -s raspi_notes.yml
 
 TODO write ``rapsi_notes.yml`` playbook
 
+
+## Issues
+
+upgrade ansible  
+```
+$ pip3 install --upgrade --user ansible
+$ pip3 show ansible
+```
