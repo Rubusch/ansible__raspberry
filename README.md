@@ -23,6 +23,7 @@ edit /etc/ansible/hosts
 
 Raspi OS image for Raspi 3b [64 bit], plug SD card in reader    
 ```
+$ cd /tmp
 $ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2022-09-26/2022-09-22-raspios-bullseye-arm64-lite.img.xz
 $ export RASPIMG=2022-09-22-raspios-bullseye-arm64-lite.img.xz
 $ unxz "$RASPIMG"
@@ -31,6 +32,7 @@ $ lsblk
    -> /dev/sdj
    ...
 $ sudo dd if="$RASPIMG" of=/dev/sdj bs=4M conv=fdatasync status=progress
+$ cd -
 ```
 
 individualization and adjust in case   
@@ -47,11 +49,13 @@ mount rootfs and adjust configs in case
 $ udisksctl mount -b /dev/sdj2
     Mounted /dev/sdj2 at /media/user/rootfs
 
+$ sudo meld ./rootfs/etc /media/user/rootfs/etc
+$ sudo meld ./rootfs/home /media/user/rootfs/home
+$ sudo meld ./rootfs/root /media/user/rootfs/root
 
 $ udisksctl unmount -b /dev/sdj2
 ```
 
-TODO: copy config to /boot/config.txt  
 TODO: setup user pi  
 TODO: setup ssh keys  
 TODO: setup individualized configs (.gitconfig)  
