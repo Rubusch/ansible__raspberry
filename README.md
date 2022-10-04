@@ -5,7 +5,7 @@
 https://opensource.com/article/20/9/raspberry-pi-ansible
 
 
-## Preparation
+## 1. Preparation
 
 On host PC  
 
@@ -25,7 +25,7 @@ ansible_user=pi
 #ansible_ssh_pass=xdr5XDR%
 ```
 
-## Prepare SD card
+## 2. Prepare SD card
 
 Raspi OS image for Raspi 3b [64 bit], plug SD card in reader    
 ```
@@ -55,14 +55,17 @@ mount rootfs and adjust configs in case
 ```
 $ udisksctl mount -b /dev/sdj2
     Mounted /dev/sdj2 at /media/user/rootfs
-
-$ sudo meld ./rootfs/etc /media/user/rootfs/etc
-$ sudo meld ./rootfs/home /media/user/rootfs/home
-$ sudo meld ./rootfs/root /media/user/rootfs/root
 ```
 
-secrets and credentials: prepare a folder ``secret`` as follows  
+either copy the files over, or individually merge the contend over e.g. with meld  
+```
+$ sudo meld ./rootfs/etc /media/user/rootfs/etc
+$ meld ./rootfs/home/pi /media/user/rootfs/home/pi
+```
 
+## 3. Secrets and Credentials
+
+prepare a folder ``secret`` as follows  
 ```
 $ tree ./secret/ -a
 ./secret/
@@ -86,8 +89,7 @@ $ tree ./secret/ -a
                 └── known_hosts
 
 $ sudo cp -arf ./secret/etc/* /media/user/rootfs/etc/
-$ sudo cp -arf ./secret/home/pi/.gitconfig /media/user/rootfs/home/pi/
-$ sudo cp -arf ./secret/home/pi/.ssh /media/user/rootfs/home/pi/
+$ cp -arf ./secret/home/pi /media/user/rootfs/home/
 
 $ cd /media/user/rootfs/home/pi
 $ ln -s /usr/local .local
@@ -118,8 +120,6 @@ Execute ansible provisioning
 $ ansible-playbook ./setup.yml
 ```
 
-
-
 ## Manual Device Management
 
 ```
@@ -127,15 +127,13 @@ $ ansible raspi -s -m shell -a 'apt-get update'
 $ ansible raspi -s -m apt -a 'pkg=nginx state=installed update_cache=true'
 ```
 
-
-
 ## Playbook Device Management
 
 ```
 $ ansible-playbook -s raspi_notes.yml
 ```
 
-TODO write ``rapsi_notes.yml`` playbook
+TODO write ``rapsi_notes.yml`` playbook            
 
 
 ## Issues
