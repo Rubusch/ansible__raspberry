@@ -66,15 +66,13 @@ max_framebuffers=2
 arm_64bit=1
 
 # Disable compensation for displays with overscan
-disable_overscan=1
+#disable_overscan=1
 
 [cm4]
 # Enable host mode on the 2711 built-in XHCI USB controller.
 # This line should be removed if the legacy DWC2 controller is required
 # (e.g. for USB device mode) or if USB support is not required.
 otg_mode=1
-
-[all]
 
 [pi4]
 # Run as fast as firmware / board allows
