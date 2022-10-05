@@ -83,16 +83,13 @@
         password:  "{{ 'item.password' | password_hash('sha512') }}"
         state: present
     - name: Stop rfkill blocking
-      shell:
-        "sudo rfkill unblock all"
-      register: os_info
-    - name: Start wifi
-      shell:
-        "sudo ip link set wlan0 up"
-      register: os_info
-    - name: Request dhcp IP
-      shell:
-        "sudo dhclient -v wlan0"
+      shell: |
+        sudo rfkill unblock all
+        sudo ip link set wlan0 up
+        sudo dhclient -v wlan0
+        sudo iw wlan0 set power_save off
+        sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+        sudo ifup --force wlan0
       register: os_info
     - name: Ensure a list of packages installed
       apt:
