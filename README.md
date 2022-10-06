@@ -13,9 +13,9 @@ On host PC
 $ pip3 install --user ansible
 ```
 
-edit /etc/ansible/hosts  
+edit /etc/ansible/hosts   
 ```
-$ cat /etc/ansible/hosts 
+$ cat /etc/ansible/hosts
 [raspi]
 10.1.10.222
 
@@ -99,6 +99,8 @@ $ cd -
 $ udisksctl unmount -b /dev/sdj2
 ```
 
+## Provisioning
+
 Install SD card, and configure networking on the board, expect raspi up and running on eth/10.1.10.222 or wlan/dhcp, in case check with nmap e.g. for some IP
 expected in subnet 192.168.123.0/24   
 
@@ -116,24 +118,10 @@ $ ansible all -m ping
 ```
 
 Execute ansible provisioning
+
 ```
 $ ansible-playbook ./setup.yml
 ```
-
-## Manual Device Management
-
-```
-$ ansible raspi -s -m shell -a 'apt-get update'
-$ ansible raspi -s -m apt -a 'pkg=nginx state=installed update_cache=true'
-```
-
-## Playbook Device Management
-
-```
-$ ansible-playbook -s raspi_notes.yml
-```
-
-TODO write ``rapsi_notes.yml`` playbook            
 
 
 ## Issues
@@ -143,3 +131,19 @@ upgrade ansible
 $ pip3 install --upgrade --user ansible
 $ pip3 show ansible
 ```
+
+
+*issue*: ping fails  
+```
+$ ansible raspi -m ping
+10.1.10.200 | UNREACHABLE! => {
+    "changed": false,
+	    "msg": "Failed to connect to the host via ssh: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @\r\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\nIT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!\r\nSomeone could be eavesdropping on you right now (man-in-the-middle attack)!\r\nIt is also possible that a host key has just been changed.\r\nThe fingerprint for the ED25519 key sent by the remote host is\nSHA256:vH4JKH+RXxG85SiYz26U7xX7aCgZ1a/YqF5Ip643vVQ.\r\nPlease contact your system administrator.\r\nAdd correct host key in /home/user/.ssh/known_hosts to get rid of this message.\r\nOffending ECDSA key in /home/user/.ssh/known_hosts:78\r\n  remove with:\r\n  ssh-keygen -f \"/home/user/.ssh/known_hosts\" -R \"10.1.10.200\"\r\nHost key for 10.1.10.200 has changed and you have requested strict checking.\r\nHost key verification failed.",
+		    "unreachable": true
+			}
+```
+*fix*: adjust .ssh/known_hosts  
+```
+ssh-keygen -f "/home/user/.ssh/known_hosts" -R "10.1.10.200"
+```
+
