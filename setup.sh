@@ -6,13 +6,15 @@
 ## - try to make sure you have sudo permissions
 
 DEV="${1}"
+IMG="./download/2022-09-22-raspios-bullseye-arm64-lite.img"
 
 if [ -z "${DEV}" ]; then
 	echo "usage: ${0} <dev of SD card>"
 	exit 1
 fi
 
-sudo dd if=download/2022-09-22-raspios-bullseye-arm64-lite.img  of=/dev/sdi bs=4M conv=fdatasync status=progress
+sudo dd if="${IMG}" of="${DEV}" bs=4M conv=fdatasync status=progress
+sleep 5
 
 udisksctl mount -b "${DEV}1"
 sudo cp -arf ./rootfs/boot/* /media/${USER}/boot/
