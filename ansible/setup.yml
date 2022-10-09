@@ -91,6 +91,12 @@
         sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
         sudo ifup --force wlan0
       register: os_info
+    - name: Labgrid
+      shell: |
+        pip install --upgrade pip setuptools wheel
+        git clone https://github.com/labgrid-project/labgrid
+        cd labgrid && pip install -r requirements.txt
+        python3 setup.py install
     - name: Ensure a list of packages installed
       apt:
         name: "{{ packages }}"
