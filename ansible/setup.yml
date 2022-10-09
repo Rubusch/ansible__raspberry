@@ -85,7 +85,7 @@
         name: pi
         password:  "{{ 'item.password' | password_hash('sha512') }}"
         state: present
-    - name: Stop rfkill blocking
+    - name: Restart wifi
       shell: |
         sudo rfkill unblock all
         sudo ip link set wlan0 up
