@@ -25,7 +25,7 @@ ansible_user=pi
 #ansible_ssh_pass=xdr5XDR%
 ```
 
-## 2. Prepare SD card
+## SD card: Prepare SD card
 
 Raspi OS image for Raspi 3b [64 bit], plug SD card in reader    
 ```
@@ -63,7 +63,7 @@ $ sudo meld ./rootfs/etc /media/user/rootfs/etc
 $ meld ./rootfs/home/pi /media/user/rootfs/home/pi
 ```
 
-## 3. Secrets and Credentials
+## SD card: Secrets and Credentials
 
 prepare a folder ``secret`` as follows  
 ```
@@ -99,6 +99,13 @@ $ cd -
 $ udisksctl unmount -b /dev/sdj2
 ```
 
+## SD card: Increase partitions
+
+Resize rootfs partition  
+```
+$ sudo gparted /dev/sdi2
+```
+
 ## Provisioning
 
 Install SD card, and configure networking on the board, expect raspi up and running on eth/10.1.10.222 or wlan/dhcp, in case check with nmap e.g. for some IP
@@ -127,6 +134,7 @@ $ ansible-playbook ./setup.yml
 ## Issues
 
 upgrade ansible  
+
 ```
 $ pip3 install --upgrade --user ansible
 $ pip3 show ansible
@@ -146,4 +154,14 @@ $ ansible raspi -m ping
 ```
 ssh-keygen -f "/home/user/.ssh/known_hosts" -R "10.1.10.200"
 ```
+
+
+*issue*: login failed, no login possible  
+
+*fix*: provide a /boot/userconf.txt file, e.g. when SD card is mounted  
+```
+$ echo -n "pi:" > ./boot/userconf.txt
+$ echo 'mypassword' | openssl passwd -6 -stdin >> /boot/userconf.txt
+```
+
 
