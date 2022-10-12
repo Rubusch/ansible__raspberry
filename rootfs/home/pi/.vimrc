@@ -174,19 +174,19 @@ set wrapmargin=1
 set nowritebackup
 
 " syntax highlighting
-syntax on
-if has("gui_running")
-    " See ~/.gvimrc
-    set guifont=Monospace\ 10  " use this font
-    set lines=50           " height = 50 lines
-    set columns=100        " width = 100 columns
-    set background=light   " adapt colors for background
-    set selectmode=mouse,key,cmd
-    set keymodel=
-else
-    colorscheme elflord    " use this color scheme
-    set background=dark    " adapt colors for background
-endif
+"syntax on
+"if has("gui_running")
+"    " See ~/.gvimrc
+"    set guifont=Monospace\ 10  " use this font
+"    set lines=50           " height = 50 lines
+"    set columns=100        " width = 100 columns
+"    set background=light   " adapt colors for background
+"    set selectmode=mouse,key,cmd
+"    set keymodel=
+"else
+"    colorscheme elflord    " use this color scheme
+"    set background=dark    " adapt colors for background
+"endif
 
 " formatoptions: typing "ESC gq" formats the text to 80 chars per line
 " IMPORTANT: this turns off a single textwidth setting (tw), see below
