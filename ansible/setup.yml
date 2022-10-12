@@ -7,7 +7,7 @@
         #ssh_key: "ssh-rsa"
     packages:
       - vim
-      #- emacs
+      - emacs
       #- wget
       #- htop
       #- tig
@@ -85,6 +85,15 @@
         name: pi
         password:  "{{ 'item.password' | password_hash('sha512') }}"
         state: present
+    - name: Enable console auto login
+      shell: |
+        sudo raspi-config nonint do_boot_behaviour B2
+      #ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
+    - name: Fix permissions and locale
+      shell: |
+        sudo chown pi:pi -R /usr/local
+        # TODO fix locale
+        #sudo locale-gen en_US.UTF-8
     - name: Restart wifi
       shell: |
         sudo rfkill unblock all
@@ -94,16 +103,18 @@
         sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
         sudo ifup --force wlan0
       register: os_info
-    - name: Labgrid
-      shell: |
-        pip install --upgrade pip setuptools wheel
-        git clone https://github.com/labgrid-project/labgrid
-        cd labgrid && pip install -r requirements.txt
-        python3 setup.py install
     - name: Ensure a list of packages installed
+      register: updatesys
       apt:
+        update_cache: yes
         name: "{{ packages }}"
         state: present
+#    - name: Labgrid
+#      shell: |
+#        pip install --upgrade pip setuptools wheel
+#        git clone https://github.com/labgrid-project/labgrid
+#        cd labgrid && pip install -r requirements.txt
+#        python3 setup.py install
     - name: Enable systemd services
       systemd:
         name: ssh.service
