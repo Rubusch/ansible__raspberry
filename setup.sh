@@ -6,7 +6,7 @@
 ## - try to make sure you have sudo permissions
 
 DEV="${1}"
-IMG="./download/2022-09-22-raspios-bullseye-arm64-lite.img"
+IMG="$( ls ./download/*-arm64-lite.img )"
 
 if [ -z "${DEV}" ]; then
 	echo "usage: ${0} <dev of SD card>"
@@ -18,22 +18,24 @@ sleep 5
 
 
 ## boot
+BOOT="/media/${USER}/boot"
 udisksctl mount -b "${DEV}1"
-sudo cp -arfv ./rootfs/boot/* /media/${USER}/boot/
+sudo cp -arfv ./rootfs/boot/* "${BOOT}"/
 udisksctl unmount -b "${DEV}1"
 
 
 ## rootfs
+ROOTFS="/media/${USER}/rootfs"
 udisksctl mount -b "${DEV}2"
-sudo cp -arfv ./rootfs/etc /media/${USER}/rootfs/
-sudo cp -arfv ./rootfs/root /media/${USER}/rootfs/
-cp -arf ./rootfs/home/pi /media/${USER}/rootfs/home/
+sudo cp -arfv ./rootfs/etc "${ROOTFS}/"
+sudo cp -arfv ./rootfs/root "${ROOTFS}/"
+cp -arf ./rootfs/home/pi "${ROOTFS}/home/"
 
-sudo cp -arfv ./secret/etc /media/${USER}/rootfs/
-cp -arfv ./secret/home/pi /media/${USER}/rootfs/home/
+sudo cp -arfv ./secret/etc "${ROOTFS}/"
+cp -arfv ./secret/home/pi "${ROOTFS}/home/"
 
 ## rootfs - remove dhcpcd (we use dnsmasq)
-sudo rm -fv /media/${USER}/rootfs/etc/systemd/system/multi-user.target.wants/dhcpcd.service
+sudo rm -fv "${ROOTFS}/etc/systemd/system/multi-user.target.wants/dhcpcd.service"
 
 udisksctl unmount -b "${DEV}2"
 

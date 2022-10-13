@@ -8,77 +8,77 @@
     packages:
       - vim
       - emacs
-      #- wget
-      #- htop
-      #- tig
-      #- zlib1g-dev
-      #- g++
-      #- build-essential
-      #- sudo
-      #- libssl-dev
-      #- bison
-      #- flex
-      #- bc
-      #- libncurses5-dev
-      #- libelf-dev
-      #- python3-all
-      #- rsync
-      #- binutils
-      #- unzip
-      #- bzip2
-      #- make
-      #- gcc
-      #- cpio
-      #- libc6-dev
-      #- fakeroot
-      #- udev
-      #- hdparm
-      #- xmlto
-      #- perl
-      #- wget
-      #- curl
-      #- bin86
-      #- patch
-      #- doxygen
-      #- python
-      #- mercurial
-      #- kmod
-      #- fonts-noto-cjk
-      #- autoconf
-      #- libtool
-      #- libtool-bin
-      #- aptitude
-      #- bsdmainutils
-      #- i2c-tools
-      #- device-tree-compiler
-      #- graphviz
-      #- u-boot-tools
-      #- codespell
-      #- clang-format
-      #- clang-tools
-      #- clang-tidy
-      #- astyle
-      #- exuberant-ctags
-      #- tree
-      #- mc
-      #- colordiff
-      #- dos2unix
-      #- chrpath
-      #- diffstat
-      #- gawk
-      #- texinfo
-      #- libsdl1.2-dev
-      #- xterm
-      #- screen
-      #- emacs-goodies-el
-      #- emacs-goodies-extra-el
-      #- exuberant-ctags
-      #- git-all
-      #- python3
-      #- python3-virtualenv
-      #- python3-pip
-      #- python3-setuptools
-      #- virtualenv
+      - wget
+      - htop
+      - tig
+      - zlib1g-dev
+      - g++
+      - build-essential
+      - sudo
+      - libssl-dev
+      - bison
+      - flex
+      - bc
+      - libncurses5-dev
+      - libelf-dev
+      - python3-all
+      - rsync
+      - binutils
+      - unzip
+      - bzip2
+      - make
+      - gcc
+      - cpio
+      - libc6-dev
+      - fakeroot
+      - udev
+      - hdparm
+      - xmlto
+      - perl
+      - wget
+      - curl
+      - bin86
+      - patch
+      - doxygen
+      - python
+      - mercurial
+      - kmod
+      - fonts-noto-cjk
+      - autoconf
+      - libtool
+      - libtool-bin
+      - aptitude
+      - bsdmainutils
+      - i2c-tools
+      - device-tree-compiler
+      - graphviz
+      - u-boot-tools
+      - codespell
+      - clang-format
+      - clang-tools
+      - clang-tidy
+      - astyle
+      - exuberant-ctags
+      - tree
+      - mc
+      - colordiff
+      - dos2unix
+      - chrpath
+      - diffstat
+      - gawk
+      - texinfo
+      - libsdl1.2-dev
+      - xterm
+      - screen
+      - emacs-goodies-el
+      - emacs-goodies-extra-el
+      - exuberant-ctags
+      - git-all
+      - python3
+      - python3-virtualenv
+      - python3-pip
+      - python3-setuptools
+      - virtualenv
   tasks:
     - name: Change password for default user
       user:
@@ -86,14 +86,26 @@
         password:  "{{ 'item.password' | password_hash('sha512') }}"
         state: present
     - name: Enable console auto login
-      shell: |
-        sudo raspi-config nonint do_boot_behaviour B2
+      shell: sudo raspi-config nonint do_boot_behaviour B2
       #ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
     - name: Fix permissions and locale
-      shell: |
-        sudo chown pi:pi -R /usr/local
-        # TODO fix locale
-        #sudo locale-gen en_US.UTF-8
+      shell: sudo chown pi:pi -R /usr/local
+    - name: Expand image to SD card size
+      shell: sudo raspi-config --expand-rootfs
+    - name: Reboot
+      ansible.builtin.command: reboot
+      ignore_unreachable: yes
+    - name: wait
+      wait_for_connection:
+        delay: 30
+    #- name: Wait for the reboot and reconnect
+    #  wait_for:
+    #    port: 22
+    #    host: '{{ inventory_hostname }}'
+    #    search_regex: OpenSSH
+    #    delay: 10
+    #    timeout: 60
+    #  connection: local
     - name: Restart wifi
       shell: |
         sudo rfkill unblock all
@@ -109,6 +121,9 @@
         update_cache: yes
         name: "{{ packages }}"
         state: present
+    - name: Fix locales
+## TODO fix locales
+      shell: sudo locale-gen en_US.UTF-8
 #    - name: Labgrid
 #      shell: |
 #        pip install --upgrade pip setuptools wheel
