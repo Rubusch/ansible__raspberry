@@ -40,7 +40,7 @@
       - bin86
       - patch
       - doxygen
-      - python
+      - python-is-python2
       - mercurial
       - kmod
       - fonts-noto-cjk
@@ -71,7 +71,6 @@
       - xterm
       - screen
       - emacs-goodies-el
-      - emacs-goodies-extra-el
       - exuberant-ctags
       - git-all
       - python3
@@ -80,14 +79,21 @@
       - python3-setuptools
       - virtualenv
   tasks:
-    - name: Change password for default user
-      user:
-        name: pi
-        password:  "{{ 'item.password' | password_hash('sha512') }}"
-        state: present
+#    - name: tell the host about our servers it might want to ssh to
+#      known_hosts:
+#        #path: /etc/ssh/ssh_known_hosts
+#        path: /home/user/.ssh/known_hosts
+#        #name: foo.com.invalid
+#        name: 10.1.10.203
+#        key: "{{ lookup('/home/user/.ssh/known_hosts', 'pubkeys/10.1.10.203') }}"
+#    - name: Change password for default user
+#      user:
+#        name: pi
+#        password:  "{{ 'item.password' | password_hash('sha512') }}"
+#        state: present
     - name: Enable console auto login
-      shell: sudo raspi-config nonint do_boot_behaviour B2
-      #ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
+      #shell: sudo raspi-config nonint do_boot_behaviour B2
+      ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
     - name: Fix permissions and locale
       shell: sudo chown pi:pi -R /usr/local
     - name: Expand image to SD card size
@@ -98,14 +104,6 @@
     - name: wait
       wait_for_connection:
         delay: 30
-    #- name: Wait for the reboot and reconnect
-    #  wait_for:
-    #    port: 22
-    #    host: '{{ inventory_hostname }}'
-    #    search_regex: OpenSSH
-    #    delay: 10
-    #    timeout: 60
-    #  connection: local
     - name: Restart wifi
       shell: |
         sudo rfkill unblock all
