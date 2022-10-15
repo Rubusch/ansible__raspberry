@@ -174,7 +174,7 @@ set wrapmargin=1
 set nowritebackup
 
 " syntax highlighting
-"syntax on
+syntax on
 "if has("gui_running")
 "    " See ~/.gvimrc
 "    set guifont=Monospace\ 10  " use this font
