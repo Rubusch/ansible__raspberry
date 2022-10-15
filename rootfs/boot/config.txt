@@ -83,3 +83,6 @@ arm_boost=1
 [all]
 enable_uart=1
 dtoverlay=pi3-disable-bt
+
+## allow 1200 mA
+#max_usb_current=1
