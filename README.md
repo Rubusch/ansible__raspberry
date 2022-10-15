@@ -1,4 +1,6 @@
-# Configuration Management for my Raspi / Notes
+# Quick and easy provisioning for my Raspberry Pi
+
+This is a simple ansible setup (not even using roles!) for provisioning. First a Shell script prepares the SD card in the reader. Then plugged into the RPI, the ansible script provisions my setup for development and automation.  
 
 ## References
 
@@ -13,17 +15,7 @@ On host PC
 $ pip3 install --user ansible
 ```
 
-edit /etc/ansible/hosts   
-```
-$ cat /etc/ansible/hosts
-[raspi]
-10.1.10.222
-
-[all:vars]
-ansible_connection=ssh
-ansible_user=pi
-#ansible_ssh_pass=xdr5XDR%
-```
+Edit /etc/ansible/hosts   
 
 ## SD card: Prepare SD card
 
@@ -41,7 +33,7 @@ $ sudo dd if="$RASPIMG" of=/dev/sdj bs=4M conv=fdatasync status=progress
 $ cd -
 ```
 
-individualization and adjust in case   
+Individualization and adjust in case   
 ```
 $ udisksctl mount -b /dev/sdj1
     Mounted /dev/sdj1 at /media/user/boot
@@ -51,13 +43,13 @@ $ meld ./rootfs/boot/config.txt /media/user/boot/config.txt
 $ udisksctl unmount -b /dev/sdj1
 ```
 
-mount rootfs and adjust configs in case   
+Mount rootfs and adjust configs in case   
 ```
 $ udisksctl mount -b /dev/sdj2
     Mounted /dev/sdj2 at /media/user/rootfs
 ```
 
-either copy the files over, or individually merge the contend over e.g. with meld  
+Either copy the files over, or individually merge the contend over e.g. with meld  
 ```
 $ sudo meld ./rootfs/etc /media/user/rootfs/etc
 $ meld ./rootfs/home/pi /media/user/rootfs/home/pi
@@ -65,7 +57,7 @@ $ meld ./rootfs/home/pi /media/user/rootfs/home/pi
 
 ## SD card: Secrets and Credentials
 
-prepare a folder ``secret`` as follows  
+Prepare a folder ``secret`` as follows  
 ```
 $ tree ./secret/ -a
 ./secret/
