@@ -1,10 +1,11 @@
-- hosts: all
+---
+- name: Raspberry Provisioning
+  hosts: all
   become: 'yes'
   vars:
     user:
       - name: "pi"
         password: "xdr5XDR%"
-        #ssh_key: "ssh-rsa"
     packages:
       - vim
       - emacs
@@ -78,33 +79,21 @@
       - python3-pip
       - python3-setuptools
       - virtualenv
+      - vim-bitbake
   tasks:
-#    - name: tell the host about our servers it might want to ssh to
-#      known_hosts:
-#        #path: /etc/ssh/ssh_known_hosts
-#        path: /home/user/.ssh/known_hosts
-#        #name: foo.com.invalid
-#        name: 10.1.10.203
-#        key: "{{ lookup('/home/user/.ssh/known_hosts', 'pubkeys/10.1.10.203') }}"
-#    - name: Change password for default user
-#      user:
-#        name: pi
-#        password:  "{{ 'item.password' | password_hash('sha512') }}"
-#        state: present
-    - name: Enable console auto login
-      #shell: sudo raspi-config nonint do_boot_behaviour B2
+    - name: Fix login
       ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
-    - name: Fix permissions and locale
-      shell: sudo chown pi:pi -R /usr/local
-    - name: Expand image to SD card size
-      shell: sudo raspi-config --expand-rootfs
+    - name: Fix /usr/local permissions
+      ansible.builtin.command: chown pi:pi -R /usr/local
+    - name: Expand rootfs
+      ansible.builtin.command: raspi-config --expand-rootfs
     - name: Reboot
       ansible.builtin.command: reboot
       ignore_unreachable: yes
-    - name: wait
+    - name: Wait
       wait_for_connection:
         delay: 30
-    - name: Restart wifi
+    - name: Wifi
       shell: |
         sudo rfkill unblock all
         sudo ip link set wlan0 up
@@ -113,21 +102,33 @@
         sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
         sudo ifup --force wlan0
       register: os_info
-    - name: Ensure a list of packages installed
+      debugger: on_failed
+    - name: locales
+      block:
+        - name: Install locales
+          apt:
+            update_cache: yes
+            name: locales
+            state: latest
+        - name: Fix locales
+          shell: sudo locale-gen en_US.UTF-8
+          register: os_info
+          debugger: on_failed
+    - name: Install package list
       register: updatesys
       apt:
         update_cache: yes
         name: "{{ packages }}"
-        state: present
-    - name: Fix locales
-## TODO fix locales
-      shell: sudo locale-gen en_US.UTF-8
-#    - name: Labgrid
+        state: latest
+        autoclean: yes
+      debugger: on_failed
+#    - name: Install Labgrid
 #      shell: |
 #        pip install --upgrade pip setuptools wheel
 #        git clone https://github.com/labgrid-project/labgrid
 #        cd labgrid && pip install -r requirements.txt
 #        python3 setup.py install
+#      register: os_info
     - name: Enable systemd services
       systemd:
         name: ssh.service
