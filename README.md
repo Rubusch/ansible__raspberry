@@ -33,84 +33,43 @@ $ sudo dd if="$RASPIMG" of=/dev/sdj bs=4M conv=fdatasync status=progress
 $ cd -
 ```
 
-Individualization and adjust in case   
-```
-$ udisksctl mount -b /dev/sdj1
-    Mounted /dev/sdj1 at /media/user/boot
 
-$ meld ./rootfs/boot/config.txt /media/user/boot/config.txt
-
-$ udisksctl unmount -b /dev/sdj1
-```
-
-Mount rootfs and adjust configs in case   
-```
-$ udisksctl mount -b /dev/sdj2
-    Mounted /dev/sdj2 at /media/user/rootfs
-```
-
-Either copy the files over, or individually merge the contend over e.g. with meld  
-```
-$ sudo meld ./rootfs/etc /media/user/rootfs/etc
-$ meld ./rootfs/home/pi /media/user/rootfs/home/pi
-```
-
-## SD card: Secrets and Credentials
+## SD card: Prepare Secrets and Credentials
 
 Prepare a folder ``secret`` as follows  
 ```
 $ tree ./secret/ -a
 ./secret/
     ├── etc
-    │   ├── network
-    │   │   └── interfaces
-    │   └── wpa_supplicant
-    │       └── wpa_supplicant.conf
+    │   ├── network
+    │   │   └── interfaces
+    │   └── wpa_supplicant
+    │       └── wpa_supplicant.conf
     └── home
         └── pi
             ├── .gitconfig
             └── .ssh
-                ├── authorized_keys
-                ├── config
-                ├── enclustra
-                │   └── id_ed25519__enclustra__2022
-                ├── id_ed25519__github2022
-                ├── id_ed25519__github2022.pub
                 ├── id_ed25519__rpi4
-                ├── id_ed25519__rpi4.pub
                 └── known_hosts
-
-$ sudo cp -arf ./secret/etc/* /media/user/rootfs/etc/
-$ cp -arf ./secret/home/pi /media/user/rootfs/home/
-
-$ cd /media/user/rootfs/home/pi
-$ ln -s /usr/local .local
-$ sudo chown 1000:1000 -R ./
-$ cd -
-
-$ udisksctl unmount -b /dev/sdj2
 ```
 
-## SD card: Increase partitions
+## Setup SD card
 
-Resize rootfs partition  
+Plug card into card reader.  
+
 ```
-$ sudo gparted /dev/sdi2
+$ lsblk
+   -> /dev/sdi
+
+$ ./setup.sh /dev/sdi
 ```
+
 
 ## Provisioning
 
-Install SD card, and configure networking on the board, expect raspi up and running on eth/10.1.10.222 or wlan/dhcp, in case check with nmap e.g. for some IP
-expected in subnet 192.168.123.0/24   
+Take out SD card, plug it into the RPI and power the board. When it is up and running.  
 
-```
-$ nmap -sn 192.168.123.0/24
-    ...
-    -> something with Raspberry pi...
-    ...
-```
-
-Now the device should be available via ssh  
+Optionally verify the board is up.  
 ```
 $ cd ./ansible
 $ ansible all -m ping
@@ -155,5 +114,3 @@ ssh-keygen -f "/home/user/.ssh/known_hosts" -R "10.1.10.200"
 $ echo -n "pi:" > ./boot/userconf.txt
 $ echo 'mypassword' | openssl passwd -6 -stdin >> /boot/userconf.txt
 ```
-
-
