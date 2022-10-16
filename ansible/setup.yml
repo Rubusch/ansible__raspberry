@@ -60,7 +60,7 @@
       - clang-tidy
       - astyle
       - exuberant-ctags
-      - tree
+      - tree # ok
       - mc
       - colordiff
       - dos2unix
@@ -83,16 +83,21 @@
   tasks:
     - name: Fix login
       ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
+
     - name: Fix /usr/local permissions
       ansible.builtin.command: chown pi:pi -R /usr/local
+
     - name: Expand rootfs
       ansible.builtin.command: raspi-config --expand-rootfs
+
     - name: Reboot
       ansible.builtin.command: reboot
       ignore_unreachable: yes
+
     - name: Wait
       wait_for_connection:
         delay: 30
+
     - name: Wifi
       shell: |
         sudo rfkill unblock all
@@ -103,25 +108,33 @@
         sudo ifup --force wlan0
       register: os_info
       debugger: on_failed
+
     - name: locales
       block:
         - name: Install locales
-          apt:
+          ansible.builtin.apt:
             update_cache: yes
+            cache_valid_time: 3600
             name: locales
-            state: latest
+
         - name: Fix locales
           shell: sudo locale-gen en_US.UTF-8
           register: os_info
           debugger: on_failed
+
     - name: Install package list
-      register: updatesys
-      apt:
-        update_cache: yes
-        name: "{{ packages }}"
+      ansible.builtin.apt:
+        pkg: "{{ packages }}"
         state: latest
+
+    - name: Autoclean package list
+      ansible.builtin.apt:
         autoclean: yes
-      debugger: on_failed
+
+    - name: Autoremove dependencies no longer required
+      ansible.builtin.apt:
+        autoremove: yes
+
 #    - name: Install Labgrid
 #      shell: |
 #        pip install --upgrade pip setuptools wheel
@@ -129,11 +142,13 @@
 #        cd labgrid && pip install -r requirements.txt
 #        python3 setup.py install
 #      register: os_info
+
     - name: Enable systemd services
       systemd:
         name: ssh.service
         enabled: true
         masked: no
+
     - name: All done!
       debug:
         msg: Packages have been successfully installed
