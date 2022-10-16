@@ -94,10 +94,17 @@ $ cd ./ansible
 $ ansible all -m ping
 ```
 
-Optionally update ssh known_hosts  
+Optionally update ssh known_hosts, NB: ``ssh-keyscan`` should return something, when the device is up and running  
 ```
 $ ssh-keygen -f "/home/user/.ssh/known_hosts" -R "10.1.10.203"
+
 $ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+
 ```
 
 Execute ansible provisioning  
