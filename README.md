@@ -1,6 +1,5 @@
-# Quick and easy provisioning for my Raspberry Pi
+# Raspberry Pi Provisioning Setup
 
-This is a simple ansible setup (not even using roles!) for provisioning. First a Shell script prepares the SD card in the reader. Then plugged into the RPI, the ansible script provisions my setup for development and automation.  
 
 ## References
 
@@ -13,8 +12,8 @@ The installation uses a folder *secret* containing the credential files. *secret
 
 For my embedded automation controller I use the following setup:
 
-- **dhcp client** on wlan0 (with configured wpa_supplicant from *secret*)
-- **dhcp server** (dnsmasq) running on eth0
+- **dhcp client** on wlan0 (with configured wpa_supplicant from *secret*), as uplink
+- **dhcp server** (dnsmasq) running on eth0 to manage the DUTs
 - rootfs expanded to the entire SD card
 - Serial console login enabled
 - Early output on serial enabled
@@ -36,8 +35,6 @@ On host PC
 $ pip3 install --user ansible
 ```
 
-Edit /etc/ansible/hosts  
-
 ## Download RPI/OS image (64 bit)
 
 Raspi OS image for Raspi 3b [64 bit], plug SD card in reader  
@@ -48,7 +45,6 @@ $ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_
 $ export RASPIMG=2022-09-22-raspios-bullseye-arm64-lite.img.xz
 $ unxz "$RASPIMG"
 ```
-
 
 ## SD card: Prepare Secrets and Credentials
 
@@ -119,7 +115,6 @@ $ cd ./sd
 $ ./setup.sh /dev/sdi
 ```
 
-
 ## Setup RPI target
 
 Connect ethernet connection to the RPI. Plug SD card into the RPI and power the board. When it is up and running. Optionally verify the board is up.  
@@ -150,13 +145,12 @@ $ ansible-playbook -K ./rpi-conf.yml
 
 ## Issues
 
-upgrade ansible  
+*issue*: prefer pip installed ansible?  
 
 ```
 $ pip3 install --upgrade --user ansible
 $ pip3 show ansible
 ```
-
 
 *issue*: ping fails  
 ```
