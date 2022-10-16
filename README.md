@@ -24,6 +24,7 @@ For my embedded automation controller I use the following setup:
 - screen using CTRL-b (emacs user)
 - vimrc, emacsrc, mc, bashrc, etc. environment settings
 - Camera (legacy) enabled, setup for motion (useful to remote observe LEDs blinking)
+- ~/.local is a symlink to /usr/local i.e. actually a one-user-system
 - Login: u: pi / p: xdr5XDR%  or auto-login
 
 
@@ -37,27 +38,25 @@ $ pip3 install --user ansible
 
 Edit /etc/ansible/hosts  
 
-## SD card: Prepare SD card
+## Download RPI/OS image (64 bit)
 
 Raspi OS image for Raspi 3b [64 bit], plug SD card in reader  
 ```
-$ cd /tmp
+$ mkdir ./sd/download
+$ cd ./sd/download
 $ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2022-09-26/2022-09-22-raspios-bullseye-arm64-lite.img.xz
 $ export RASPIMG=2022-09-22-raspios-bullseye-arm64-lite.img.xz
 $ unxz "$RASPIMG"
-$ lsblk
-   ...
-   -> /dev/sdj
-   ...
-$ sudo dd if="$RASPIMG" of=/dev/sdj bs=4M conv=fdatasync status=progress
-$ cd -
 ```
 
 
 ## SD card: Prepare Secrets and Credentials
 
-Prepare a folder ``secret`` as follows  
+Prepare a folder ``secret`` and provide content as follows  
 ```
+$ cd ./sd
+$ mkdir ./secret
+...
 $ tree ./secret/ -a
 ./secret/
     ├── etc
@@ -73,6 +72,42 @@ $ tree ./secret/ -a
                 └── known_hosts
 ```
 
+Example: interfaces, e.g. could be extended with further network connections to work, and corresponding wpa_supplicant entries.  
+```
+$ cat ./secret/etc/network/interfaces
+    # interfaces(5) file used by ifup(8) and ifdown(8)
+    # Include files from /etc/network/interfaces.d:
+    source /etc/network/interfaces.d
+
+    auto lo
+    iface lo inet loopback
+
+    auto eth0
+    allow-hotplug eth0
+
+    ## dnsmasq as dhcp own server on eth
+    iface eth0 inet static
+    address 10.1.10.203
+    netmask 255.0.0.0
+
+    auto wlan0
+    allow-hotplug wlan0
+    iface wlan0 inet manual
+    wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+    #wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+    wireless-power off
+
+    ## home wifi
+    iface home inet dhcp
+
+    ## demo: dynamic and static setup
+    #iface demosetup inet dhcp
+    #
+    #iface demosetup inet static
+    #    address 192.168.1.222
+    #    netmask 255.255.255.0
+```
+
 ## Setup SD card
 
 Plug card into card reader.  
@@ -80,15 +115,14 @@ Plug card into card reader.
 $ lsblk
    -> /dev/sdi
 
+$ cd ./sd
 $ ./setup.sh /dev/sdi
 ```
 
 
-## Provisioning
+## Setup RPI target
 
-Take out SD card, plug it into the RPI and power the board. When it is up and running.  
-
-Optionally verify the board is up.  
+Connect ethernet connection to the RPI. Plug SD card into the RPI and power the board. When it is up and running. Optionally verify the board is up.  
 ```
 $ cd ./ansible
 $ ansible all -m ping
@@ -109,7 +143,8 @@ $ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
 
 Execute ansible provisioning  
 ```
-$ ansible-playbook ./setup.yml
+$ cd ./ansible
+$ ansible-playbook -K ./rpi-conf.yml
 ```
 
 
