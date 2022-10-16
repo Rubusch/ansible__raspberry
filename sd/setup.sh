@@ -24,12 +24,10 @@ sudo cp -arfv ./rootfs/boot/* "${BOOT}"/
 udisksctl unmount -b "${DEV}1"
 
 
-## rootfs
+## rootfs (fix networking for initial ssh connection via eth0)
 ROOTFS="/media/${USER}/rootfs"
 udisksctl mount -b "${DEV}2"
 sudo cp -arfv ./rootfs/etc "${ROOTFS}/"
-sudo cp -arfv ./rootfs/root "${ROOTFS}/"
-cp -arf ./rootfs/home/pi "${ROOTFS}/home/"
 
 sudo cp -arfv ./secret/etc "${ROOTFS}/"
 cp -arfv ./secret/home/pi "${ROOTFS}/home/"
@@ -40,4 +38,3 @@ sudo rm -fv "${ROOTFS}/etc/systemd/system/multi-user.target.wants/dhcpcd.service
 udisksctl unmount -b "${DEV}2"
 
 echo "READY."
-
