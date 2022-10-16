@@ -3,9 +3,6 @@
     - name: Fix login
       ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
 
-#    - name: Fix /usr/local permissions
-#      ansible.builtin.command: chown pi:pi -R /usr/local
-
     - name: Fix /usr/local permissions
       ansible.builtin.file:
         path: /usr/local
@@ -13,10 +10,50 @@
         recurse: yes
         owner: pi
         group: pi
-        mode: 755
 
     - name: Expand rootfs
       ansible.builtin.command: raspi-config --expand-rootfs
+
+    - name: Copy pi configs
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: pi
+        group: pi
+        mode: 0644
+      with_items:
+        - { src: home/pi/bashrc, dest: /home/pi/.bashrc }
+        - { src: home/pi/vimrc, dest: /home/pi/.vimrc }
+        - { src: home/pi/emacsrc, dest: /home/pi/.emacs }
+        - { src: home/pi/emacsstarter.sh, dest: /home/pi/.emacsstarter.sh }
+
+    - name: Copy mc configs
+      copy:
+        src: home/pi/config/
+        dest: "{{ ansible_env.HOME }}/.config"
+        owner: pi
+        group: pi
+
+    - name: Symlink .local to /usr/local
+      file:
+        src: /usr/local
+        dest: "{{ ansible_env.HOME }}/.local"
+        owner: pi
+        group: pi
+        state: link
+
+    - name: Copy etc configs
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: 0755
+      with_items:
+        - { src: etc/apt, dest: etc/apt }
+        - { src: etc/default, dest: etc/default }
+        - { src: etc/motion, dest: etc/motion }
+        - { src: etc/group, dest: etc/group }
+        - { src: etc/locale.gen, dest: etc/locale.gen }
+        - { src: etc/screenrc, dest: etc/screenrc }
 
     - name: Reboot
       ansible.builtin.reboot:

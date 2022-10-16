@@ -3,6 +3,7 @@
 user:
   - name: "pi"
     password: "xdr5XDR%"
+
 packages:
   - vim
   - emacs
