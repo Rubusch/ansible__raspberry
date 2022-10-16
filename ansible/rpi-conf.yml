@@ -1,0 +1,8 @@
+- name: Raspberry Provisioning
+  hosts: raspi
+  become: 'yes'
+  tasks:
+    - name: Configure RPI using role
+      import_role:
+        name: rpi
+

@@ -1,2 +1,90 @@
 ---
 # tasks file for rpi
+    - name: Fix login
+      ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
+
+#    - name: Fix /usr/local permissions
+#      ansible.builtin.command: chown pi:pi -R /usr/local
+
+    - name: Fix /usr/local permissions
+      ansible.builtin.file:
+        path: /usr/local
+        state: directory
+        recurse: yes
+        owner: pi
+        group: pi
+        mode: 755
+
+    - name: Expand rootfs
+      ansible.builtin.command: raspi-config --expand-rootfs
+
+    - name: Reboot
+      ansible.builtin.reboot:
+
+    - name: Wifi
+      shell: |
+        sudo rfkill unblock all
+        sudo ifup --force wlan0
+      register: os_info
+      debugger: on_failed
+
+    - name: locales
+      block:
+        - name: Install locales
+          ansible.builtin.apt:
+            update_cache: yes
+            cache_valid_time: 3600
+            name: locales
+
+        - name: Install elpa-magit
+          ansible.builtin.apt:
+            name: elpa-magit
+
+        - name: Fix locales
+          shell: sudo locale-gen en_US.UTF-8
+          register: os_info
+          debugger: on_failed
+
+    - name: Install package list
+      ansible.builtin.apt:
+        pkg: "{{ packages }}"
+        state: latest
+
+    - name: Reboot
+      ansible.builtin.reboot:
+
+    - name: Install emacs goodies
+      ansible.builtin.apt:
+        name: emacs-goodies-el
+
+    - name: Reboot
+      ansible.builtin.reboot:
+
+    - name: Autoclean package list
+      ansible.builtin.apt:
+        autoclean: yes
+
+    - name: Autoremove dependencies no longer required
+      ansible.builtin.apt:
+        autoremove: yes
+
+#    - name: Install Labgrid -> separate role (add on)
+#      shell: |
+#        pip install --upgrade pip setuptools wheel
+#        git clone https://github.com/labgrid-project/labgrid
+#        cd labgrid && pip install -r requirements.txt
+#        python3 setup.py install
+#      register: os_info
+
+    - name: Enable systemd services
+      systemd:
+        name: ssh.service
+        enabled: true
+        masked: no
+
+    - name: Reboot
+      ansible.builtin.reboot:
+
+    - name: All done!
+      debug:
+        msg: Packages have been successfully installed
