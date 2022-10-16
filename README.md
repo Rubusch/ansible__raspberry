@@ -28,7 +28,7 @@ For my embedded automation controller I use the following setup:
 - Login: u: pi / p: xdr5XDR%  or auto-login
 
 
-## 1. Preparation
+## Preparation
 
 On host PC  
 
