@@ -31,6 +31,7 @@
     - { src: home/pi/emacsstarter.sh, dest: /home/pi/.emacsstarter.sh }
     - { src: home/pi/config/, dest: /home/pi/.config }
 
+## actually, for python prefer virtualenv to force linking .local (dirty hack)
 - name: Symlink .local to /usr/local
   file:
     src: /usr/local
@@ -74,6 +75,7 @@
         cache_valid_time: 3600
         name: locales
 
+      ## hack: elpa-magit does not install well with others
     - name: Install elpa-magit
       ansible.builtin.apt:
         name: elpa-magit
