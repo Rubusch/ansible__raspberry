@@ -1,6 +1,6 @@
 - name: Raspberry Provisioning
   hosts: raspi
-  become: 'yes'
+  become: 'no'
   tasks:
     - name: Common RPI
       import_role:
