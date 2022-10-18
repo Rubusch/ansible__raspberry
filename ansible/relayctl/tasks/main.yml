@@ -1,0 +1,71 @@
+---
+# tasks file for relayctl
+- name: Reboot
+  become: 'yes'
+  ansible.builtin.reboot:
+
+- name: Check virtualenv exists
+  stat:
+    path: /home/pi/labgrid-venv
+  register: pip_virtualenv_installed
+
+- name: Update and upgrade apt packages
+  become: 'yes'
+  ansible.builtin.apt:
+    upgrade: yes
+    update_cache: yes
+
+- name: Install packages
+  become: 'yes'
+  ansible.builtin.apt:
+    pkg: "{{ item }}"
+  with_items:
+    - python3
+    - python3-virtualenv
+    - python3-pip
+    - python3-setuptools
+    - python3-usb  ## implies libusb-1.0-0
+
+- name: venv - Install python packages
+  become: 'yes'
+  pip:
+    name:
+      - pyusb
+    virtualenv: /home/pi/labgrid-venv
+  when: pip_virtualenv_installed.stat.exists == True
+
+- name: venv - Install pyrelayctl
+  pip:
+    name: git+https://github.com/xypron/pyrelayctl.git
+    virtualenv: /home/pi/labgrid-venv
+  when: pip_virtualenv_installed.stat.exists == True
+
+- name: Install pyrelayctl
+  pip:
+    name: git+https://github.com/xypron/pyrelayctl.git
+  when: pip_virtualenv_installed.stat.exists == False
+
+- name: Setup udev rule
+  become: 'yes'
+  copy:
+    src: relayctl.rules
+    dest: /lib/udev/rules.d/60-relayctl.rules
+    owner: pi
+    group: pi
+    mode: 0644
+
+- name: Setup relctl tool
+  copy:
+    src: relctl.py
+    dest: /home/pi/labgrid-venv/bin
+    owner: pi
+    group: pi
+    mode: 0755
+
+- name: Reboot
+  become: 'yes'
+  ansible.builtin.reboot:
+
+- name: All done!
+  debug:
+    msg: Pyrelayctl successfully installed

@@ -10,3 +10,8 @@
       import_role:
         name: labgrid
 
+    - name: Relay Control
+      import_role:
+        name: relayctl
+
+
