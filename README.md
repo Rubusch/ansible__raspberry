@@ -26,6 +26,23 @@ For my embedded automation controller I use the following setup:
 - ~/.local is a symlink to /usr/local i.e. actually a one-user-system
 - Login: u: pi / p: xdr5XDR%  or auto-login
 
+Additional Ansible upgrades ("roles") will be  
+
+- Installation of labgrid inside a python virtualenv, to be enabled
+- Installation of pyrelayctl and script relctl.py for sainsmart 4-way-relay
+
+
+login: pi / xdr5XDR%  
+
+```
+$ source ./labgrid-venv/bin/activate
+
+(venv) $ labgrid-client --help
+
+(venv) $ relctl.py --help
+```
+
+
 
 ## Preparation
 
