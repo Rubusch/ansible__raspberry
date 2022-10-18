@@ -6,3 +6,7 @@
       import_role:
         name: rpi
 
+    - name: Labgrid
+      import_role:
+        name: labgrid
+
