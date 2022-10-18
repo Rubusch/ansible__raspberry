@@ -1,127 +1,119 @@
 ---
 # tasks file for rpi
-    - name: Fix login
-      ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
+- name: Fix login
+  ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
 
-    - name: Fix /usr/local permissions
-      ansible.builtin.file:
-        path: /usr/local
-        state: directory
-        recurse: yes
-        owner: pi
-        group: pi
+- name: Fix /usr/local permissions
+  ansible.builtin.file:
+    path: /usr/local
+    state: directory
+    recurse: yes
+    owner: pi
+    group: pi
 
-    - name: Expand rootfs
-      ansible.builtin.command: raspi-config --expand-rootfs
+- name: Expand rootfs
+  ansible.builtin.command: raspi-config --expand-rootfs
 
-    - name: Copy pi configs
-      copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: pi
-        group: pi
-        mode: 0644
-      with_items:
-        - { src: home/pi/bashrc, dest: /home/pi/.bashrc }
-        - { src: home/pi/vimrc, dest: /home/pi/.vimrc }
-        - { src: home/pi/emacsrc, dest: /home/pi/.emacs }
-        - { src: home/pi/emacsstarter.sh, dest: /home/pi/.emacsstarter.sh }
+- name: Copy pi configs
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: pi
+    group: pi
+    mode: 0644
+  with_items:
+    - { src: home/pi/bashrc, dest: /home/pi/.bashrc }
+    - { src: home/pi/vimrc, dest: /home/pi/.vimrc }
+    - { src: home/pi/emacsrc, dest: /home/pi/.emacs }
+    - { src: home/pi/emacsstarter.sh, dest: /home/pi/.emacsstarter.sh }
 
-    - name: Copy mc configs
-      copy:
-        src: home/pi/config/
-        dest: "{{ ansible_env.HOME }}/.config"
-        owner: pi
-        group: pi
+- name: Copy mc configs
+  copy:
+    src: home/pi/config/
+    dest: "{{ ansible_env.HOME }}/.config"
+    owner: pi
+    group: pi
 
-    - name: Symlink .local to /usr/local
-      file:
-        src: /usr/local
-        dest: "{{ ansible_env.HOME }}/.local"
-        owner: pi
-        group: pi
-        state: link
+- name: Symlink .local to /usr/local
+  file:
+    src: /usr/local
+    dest: "{{ ansible_env.HOME }}/.local"
+    owner: pi
+    group: pi
+    state: link
 
-    - name: Copy etc configs
-      copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        mode: 0755
-      with_items:
-        - { src: etc/apt, dest: etc/apt }
-        - { src: etc/default, dest: etc/default }
-        - { src: etc/motion, dest: etc/motion }
-        - { src: etc/group, dest: etc/group }
-        - { src: etc/locale.gen, dest: etc/locale.gen }
-        - { src: etc/screenrc, dest: etc/screenrc }
+- name: Copy etc configs
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0755
+  with_items:
+    - { src: etc/apt, dest: /etc/apt }
+    - { src: etc/default, dest: /etc/default }
+    - { src: etc/motion, dest: /etc/motion }
+    - { src: etc/group, dest: /etc/group }
+    - { src: etc/locale.gen, dest: /etc/locale.gen }
+    - { src: etc/screenrc, dest: /etc/screenrc }
 
-    - name: Reboot
-      ansible.builtin.reboot:
+- name: Reboot
+  ansible.builtin.reboot:
 
-    - name: Wifi
-      shell: |
-        sudo rfkill unblock all
-        sudo ifup --force wlan0
+- name: Wifi
+  shell: |
+    sudo rfkill unblock all
+    sudo ifup --force wlan0
+  register: os_info
+  debugger: on_failed
+
+- name: locales
+  block:
+    - name: Install locales
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        name: locales
+
+    - name: Install elpa-magit
+      ansible.builtin.apt:
+        name: elpa-magit
+
+    - name: Fix locales
+      shell: sudo locale-gen en_US.UTF-8
       register: os_info
       debugger: on_failed
 
-    - name: locales
-      block:
-        - name: Install locales
-          ansible.builtin.apt:
-            update_cache: yes
-            cache_valid_time: 3600
-            name: locales
+- name: Install package list
+  ansible.builtin.apt:
+    pkg: "{{ packages }}"
+    state: latest
 
-        - name: Install elpa-magit
-          ansible.builtin.apt:
-            name: elpa-magit
+- name: Reboot
+  ansible.builtin.reboot:
 
-        - name: Fix locales
-          shell: sudo locale-gen en_US.UTF-8
-          register: os_info
-          debugger: on_failed
+- name: Install emacs goodies
+  ansible.builtin.apt:
+    name: emacs-goodies-el
 
-    - name: Install package list
-      ansible.builtin.apt:
-        pkg: "{{ packages }}"
-        state: latest
+- name: Reboot
+  ansible.builtin.reboot:
 
-    - name: Reboot
-      ansible.builtin.reboot:
+- name: Autoclean package list
+  ansible.builtin.apt:
+    autoclean: yes
 
-    - name: Install emacs goodies
-      ansible.builtin.apt:
-        name: emacs-goodies-el
+- name: Autoremove dependencies no longer required
+  ansible.builtin.apt:
+    autoremove: yes
 
-    - name: Reboot
-      ansible.builtin.reboot:
+- name: Enable systemd services
+  systemd:
+    name: ssh.service
+    enabled: true
+    masked: no
 
-    - name: Autoclean package list
-      ansible.builtin.apt:
-        autoclean: yes
+- name: Reboot
+  ansible.builtin.reboot:
 
-    - name: Autoremove dependencies no longer required
-      ansible.builtin.apt:
-        autoremove: yes
-
-#    - name: Install Labgrid -> separate role (add on)
-#      shell: |
-#        pip install --upgrade pip setuptools wheel
-#        git clone https://github.com/labgrid-project/labgrid
-#        cd labgrid && pip install -r requirements.txt
-#        python3 setup.py install
-#      register: os_info
-
-    - name: Enable systemd services
-      systemd:
-        name: ssh.service
-        enabled: true
-        masked: no
-
-    - name: Reboot
-      ansible.builtin.reboot:
-
-    - name: All done!
-      debug:
-        msg: Packages have been successfully installed
+- name: All done!
+  debug:
+    msg: Packages have been successfully installed
