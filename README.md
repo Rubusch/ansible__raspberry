@@ -8,9 +8,9 @@ https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html
 
 ## Final Setup
 
-The installation uses a folder *secret* containing the credential files. *secret* is not checked in, and needs to be provided manually as shown below.
+The installation uses a folder *secret* containing the credential files. *secret* is not checked in, and needs to be provided manually as shown below.  
 
-For my embedded automation controller I use the following setup:
+For my embedded automation controller I use the following setup:  
 
 - **dhcp client** on wlan0 (with configured wpa_supplicant from *secret*), as uplink
 - **dhcp server** (dnsmasq) running on eth0 to manage the DUTs

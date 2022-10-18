@@ -2,7 +2,7 @@
   hosts: raspi
   become: 'yes'
   tasks:
-    - name: Configure RPI using role
+    - name: Common RPI
       import_role:
         name: rpi
 
