@@ -1,6 +1,6 @@
 galaxy_info:
   author: Lothar Rubusch
-  description: Raspberry Pi provisioning base
+  description: Raspberry Pi (64) provisioning
   company: N/A
 
   # If the issue tracker for your role is not on github, uncomment the

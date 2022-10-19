@@ -4,7 +4,7 @@
   tasks:
     - name: Common RPI
       import_role:
-        name: rpi
+        name: common-rpi64
 
     - name: Labgrid
       import_role:
