@@ -79,3 +79,10 @@ packages:
   - virtualenv
   - vim-bitbake
   - motion
+  - tcpdump
+  - nmap
+  - tftp
+  - tftpd-hpa
+  - tio
+  - xxd
+
