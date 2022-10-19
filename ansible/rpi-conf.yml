@@ -14,4 +14,8 @@
       import_role:
         name: relayctl
 
+    - name: Xilinx Virtual Cable
+      import_role:
+        name: xvcpi
+
 

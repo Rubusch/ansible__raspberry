@@ -1,0 +1,39 @@
+---
+# tasks file for xvcpi
+- name: Reboot
+  become: 'yes'
+  ansible.builtin.reboot:
+
+- name: Install needed packages
+  become: 'yes'
+  block:
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install packages
+      ansible.builtin.apt:
+        pkg: "{{ item }}"
+      with_items:
+        - linux-headers
+        - linux-source
+
+  ## https://github.com/Xilinx/XilinxVirtualCable.git
+- name: Clone XilinxVirtualCable
+  ansible.builtin.git:
+    repo: 'https://github.com/Xilinx/XilinxVirtualCable.git'
+    dest: /home/pi/github__XilinxVirtualCable
+    update: no
+
+  ## https://github.com/derekmulcahy/xvcpi.git
+- name: Clone xvcpi (Xilinx Virtual Cable on Pi)
+  ansible.builtin.git:
+    repo: 'https://github.com/derekmulcahy/xvcpi.git'
+    dest: /home/pi/github__xvcpi
+    update: no
+
+## TODO usage, config, etc. pending
+
+- name: All done!
+  debug:
+    msg: Packages have been successfully installed
