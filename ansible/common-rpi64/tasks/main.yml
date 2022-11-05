@@ -102,16 +102,6 @@
       command: localectl set-locale LANG={{ config_system_locale }} LANGUAGE={{ config_system_language }}
       changed_when: locale_lang != config_system_locale or locale_language != config_system_language
 
-#      ## hack: elpa-magit does not install well with others
-#    - name: Install elpa-magit
-##      ansible.builtin.apt:
-#        name: elpa-magit
-
-#    - name: Fix locales
-#      shell: sudo locale-gen en_US.UTF-8
-#      register: os_info
-#      debugger: on_failed
-
     - name: Reboot
       ansible.builtin.reboot:
 
@@ -150,13 +140,6 @@
   become: 'yes'
   ansible.builtin.apt:
     autoremove: yes
-
-- name: Enable systemd services
-  become: 'yes'
-  systemd:
-    name: ssh.service
-    enabled: true
-    masked: no
 
 - name: Reboot
   become: 'yes'
