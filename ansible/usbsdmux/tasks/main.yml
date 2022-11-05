@@ -1,0 +1,57 @@
+---
+# tasks file for usbsdmux
+- name: Reboot
+  become: 'yes'
+  ansible.builtin.reboot:
+
+- name: Check virtualenv exists
+  stat:
+    path: /home/pi/labgrid-venv
+  register: pip_virtualenv_installed
+
+- name: Update and upgrade apt packages
+  become: 'yes'
+  ansible.builtin.apt:
+    upgrade: yes
+    update_cache: yes
+
+- name: Install packages
+  become: 'yes'
+  ansible.builtin.apt:
+    pkg: "{{ item }}"
+  with_items:
+    - python3
+    - python3-virtualenv
+    - python3-pip
+    - python3-setuptools
+    - virtualenv
+
+- name: Create virtualenv
+  command:
+    cmd: virtualenv labgrid-venv -p python3
+    creates: "labgrid-venv"
+  when: pip_virtualenv_installed.stat.exists == False
+
+## pyserial: this version should be used (10/2022)
+- name: venv - Fix pyserial reinstall
+  pip:
+    name: https://github.com/labgrid-project/pyserial/archive/v3.4.0.1.zip#egg=pyserial
+    state: forcereinstall
+    virtualenv: /home/pi/labgrid-venv
+
+- name: venv - Install python packages
+  become: 'yes'
+  pip:
+    name:
+      - setuptools
+      - wheel
+    virtualenv: /home/pi/labgrid-venv
+
+- name: venv - Clone, install usbsdmux and install requirements
+  pip:
+    name: git+https://github.com/pengutronix/usbsdmux
+    virtualenv: /home/pi/labgrid-venv
+
+- name: All done!
+  debug:
+    msg: USB SD Mux installed
