@@ -75,15 +75,51 @@
         cache_valid_time: 3600
         name: locales
 
-      ## hack: elpa-magit does not install well with others
-    - name: Install elpa-magit
-      ansible.builtin.apt:
-        name: elpa-magit
+    - name: Ensure localisation files for '{{ config_system_locale }}' are available
+      locale_gen:
+        name: "{{ config_system_locale }}"
+        state: present
 
-    - name: Fix locales
-      shell: sudo locale-gen en_US.UTF-8
-      register: os_info
-      debugger: on_failed
+    - name: Ensure localisation files for '{{ config_system_language }}' are available
+      locale_gen:
+        name: "{{ config_system_language }}"
+        state: present
+
+    - name: Get current locale and language configuration
+      command: localectl status
+      register: locale_status
+      changed_when: false
+
+    - name: Parse 'LANG' from current locale and language configuration
+      set_fact:
+        locale_lang: "{{ locale_status.stdout | regex_search('LANG=([^\n]+)', '\\1') | first }}"
+
+    - name: Parse 'LANGUAGE' from current locale and language configuration
+      set_fact:
+        locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
+
+    - name: Configure locale to '{{ config_system_locale }}' and language to '{{ config_system_language }}'
+      command: localectl set-locale LANG={{ config_system_locale }} LANGUAGE={{ config_system_language }}
+      changed_when: locale_lang != config_system_locale or locale_language != config_system_language
+
+#      ## hack: elpa-magit does not install well with others
+#    - name: Install elpa-magit
+##      ansible.builtin.apt:
+#        name: elpa-magit
+
+#    - name: Fix locales
+#      shell: sudo locale-gen en_US.UTF-8
+#      register: os_info
+#      debugger: on_failed
+
+    - name: Reboot
+      ansible.builtin.reboot:
+
+## hack: elpa-magit does not install well with others
+- name: Install elpa-magit
+  become: 'yes'
+  ansible.builtin.apt:
+    name: elpa-magit
 
 - name: Install package list
   become: 'yes'

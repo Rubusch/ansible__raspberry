@@ -4,6 +4,9 @@ user:
   - name: "pi"
     password: "xdr5XDR%"
 
+config_system_locale: 'en_US.UTF-8'
+config_system_language: 'en_US.UTF-8'
+
 packages:
   - vim
   - emacs
