@@ -131,6 +131,37 @@
   become: 'yes'
   ansible.builtin.reboot:
 
+- name: Enable systemd services
+  become: 'yes'
+  systemd:
+    name: ssh.service
+    enabled: true
+    masked: no
+
+- name: Disable systemd ModemManager
+  become: 'yes'
+  ansible.builtin.systemd:
+    name: ModemManager.service
+    enabled: false
+
+- name: Disable systemd apache2
+  become: 'yes'
+  ansible.builtin.systemd:
+    name: apache2.service
+    enabled: false
+
+- name: Enable systemd lighttpd
+  become: 'yes'
+  ansible.builtin.systemd:
+    name: lighttpd.service
+    enabled: true
+
+- name: Remove apache2
+  become: 'yes'
+  ansible.builtin.apt:
+    name: apache2
+    purge: yes
+
 - name: Autoclean package list
   become: 'yes'
   ansible.builtin.apt:
