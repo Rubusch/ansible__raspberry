@@ -48,10 +48,8 @@
     mode: 0755
   with_items:
     - { src: etc/apt, dest: /etc/apt }
-    - { src: etc/default, dest: /etc/default }
     - { src: etc/motion, dest: /etc/motion }
     - { src: etc/group, dest: /etc/group }
-    - { src: etc/locale.gen, dest: /etc/locale.gen }
     - { src: etc/screenrc, dest: /etc/screenrc }
 
 - name: Reboot
