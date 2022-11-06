@@ -52,6 +52,7 @@
     - { src: etc/group, dest: /etc/group }
     - { src: etc/screenrc, dest: /etc/screenrc }
     - { src: etc/sudoers, dest: /etc/sudoers }
+    - { src: usr/share/polkit-1, dest: /usr/share/polkit-1 }
 
 - name: Reboot
   become: 'yes'
