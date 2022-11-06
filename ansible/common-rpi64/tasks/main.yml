@@ -131,7 +131,7 @@
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: Enable systemd services
+- name: Enable ssh
   become: 'yes'
   systemd:
     name: ssh.service
