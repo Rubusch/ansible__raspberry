@@ -84,8 +84,8 @@ packages:
   - motion
   - tcpdump
   - nmap
-  - tftp
-  - tftpd-hpa
   - tio
   - xxd
-
+  - lighttpd
+  - tftp
+  - tftpd-hpa
