@@ -143,12 +143,6 @@
     name: ModemManager.service
     enabled: false
 
-- name: Disable systemd apache2
-  become: 'yes'
-  ansible.builtin.systemd:
-    name: apache2.service
-    enabled: false
-
 - name: Enable systemd lighttpd
   become: 'yes'
   ansible.builtin.systemd:
