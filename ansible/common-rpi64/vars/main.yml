@@ -89,3 +89,5 @@ packages:
   - lighttpd
   - tftp
   - tftpd-hpa
+  - cmake
+  - libftdi1-dev
