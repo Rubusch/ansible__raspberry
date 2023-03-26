@@ -123,7 +123,7 @@ $ cat ./secret/etc/network/interfaces
 
 ## Setup SD card
 
-Plug card into card reader.  
+Plug card into card reader. In case configure ./setup.sh to use the 64-bit or the 32-bit Pi OS image.   
 ```
 $ lsblk
    -> /dev/sdi

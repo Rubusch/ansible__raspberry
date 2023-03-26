@@ -6,7 +6,12 @@
 ## - try to make sure you have sudo permissions
 
 DEV="${1}"
-IMG="$( ls ./download/*-arm64-lite.img )"
+
+## 64-bit pi OS
+#IMG="$( ls ./download/*-arm64-lite.img )"
+
+## 32-bit pi OS
+IMG="$( ls ./download/*-armhf-lite.img )"
 
 if [ -z "${DEV}" ]; then
 	echo "usage: ${0} <dev of SD card>"
