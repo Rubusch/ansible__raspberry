@@ -157,7 +157,9 @@ Execute ansible provisioning
 ```
 $ cd ./ansible
 $ ansible-playbook -K ./rpi-conf.yml
+    BECOME password: 
 ```
+login 'root' for sudo rights  
 
 
 ## Issues
