@@ -8,10 +8,10 @@
 DEV="${1}"
 
 ## 64-bit pi OS
-#IMG="$( ls ./download/*-arm64-lite.img )"
+IMG="$( ls ./download/*-arm64-lite.img )"
 
 ## 32-bit pi OS
-IMG="$( ls ./download/*-armhf-lite.img )"
+#IMG="$( ls ./download/*-armhf-lite.img )"
 
 if [ -z "${DEV}" ]; then
 	echo "usage: ${0} <dev of SD card>"
