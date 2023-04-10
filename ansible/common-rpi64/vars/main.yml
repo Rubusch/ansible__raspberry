@@ -92,3 +92,4 @@ packages:
   - dnsmasq
   - cmake
   - libftdi1-dev
+  - zstd
