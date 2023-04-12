@@ -6,18 +6,18 @@
       import_role:
         name: common-rpi64
 
-    - name: Labgrid
-      import_role:
-        name: labgrid
+#    - name: Labgrid
+#      import_role:
+#        name: labgrid
 
-    - name: USB-SD Mux
-      import_role:
-        name: usbsdmux
+#    - name: USB-SD Mux
+#      import_role:
+#        name: usbsdmux
 
-    - name: Relay Control
-      import_role:
-        name: relayctl
+#    - name: Relay Control
+#      import_role:
+#        name: relayctl
 
-    - name: Xilinx Virtual Cable
-      import_role:
-        name: xvcpi
+#    - name: Xilinx Virtual Cable
+#      import_role:
+#        name: xvcpi
