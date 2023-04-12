@@ -29,11 +29,8 @@ set hlsearch
 " show matching ()'s []'s {}'s
 set sm
 
-" tabs are 4 spaces long
-set tabstop=4
-
-" when autoindent does a tab, it's 4 spaces long
-set shiftwidth=4
+" tabs are x spaces long
+set tabstop=8
 
 " always set autoindenting on
 "set autoindent
@@ -134,8 +131,7 @@ set report=0
 "endif
 
 " shiftwidth: number of spaces to use for each insertion of (auto)indent
-"set shiftwidth=8
-"set shiftwidth=2
+set shiftwidth=8
 
 " shortmess: kind of messages to show; abbreviate them all!
 " new since vim-5.0v: flag 'I' to suppress "intro message".
@@ -173,20 +169,26 @@ set wrapmargin=1
 " writebackup
 set nowritebackup
 
+" select current dir as default when opening the explorer (:Ex)
+set autochdir
+
+" don't do .swp files all over the place
+set noswapfile
+
 " syntax highlighting
 syntax on
-"if has("gui_running")
-"    " See ~/.gvimrc
-"    set guifont=Monospace\ 10  " use this font
-"    set lines=50           " height = 50 lines
-"    set columns=100        " width = 100 columns
-"    set background=light   " adapt colors for background
-"    set selectmode=mouse,key,cmd
-"    set keymodel=
-"else
-"    colorscheme elflord    " use this color scheme
-"    set background=dark    " adapt colors for background
-"endif
+if has("gui_running")
+    " See ~/.gvimrc
+    set guifont=Monospace\ 10  " use this font
+    set lines=50           " height = 50 lines
+    set columns=100        " width = 100 columns
+    set background=light   " adapt colors for background
+    set selectmode=mouse,key,cmd
+    set keymodel=
+else
+    colorscheme elflord    " use this color scheme
+    set background=dark    " adapt colors for background
+endif
 
 " formatoptions: typing "ESC gq" formats the text to 80 chars per line
 " IMPORTANT: this turns off a single textwidth setting (tw), see below

@@ -9,6 +9,8 @@ config_system_language: 'en_US.UTF-8'
 
 packages:
   - vim
+  - vim-addon-manager
+  - vim-youcompleteme
   - emacs
   - wget
   - htop
@@ -24,6 +26,7 @@ packages:
   - libncurses5-dev
   - libelf-dev
   - python3-all
+  - python3-dev
   - rsync
   - binutils
   - unzip
