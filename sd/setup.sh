@@ -35,7 +35,7 @@ udisksctl mount -b "${DEV}2"
 sudo cp -arfv ./rootfs/etc "${ROOTFS}/"
 
 sudo cp -arfv ./secret/etc "${ROOTFS}/"
-cp -arfv ./secret/home/pi "${ROOTFS}/home/"
+sudo cp -arfv ./secret/home/pi "${ROOTFS}/home/"
 
 ## rootfs - remove dhcpcd (we use dnsmasq)
 sudo rm -fv "${ROOTFS}/etc/systemd/system/multi-user.target.wants/dhcpcd.service"
