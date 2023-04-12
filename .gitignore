@@ -1,6 +1,12 @@
 ## backup files
 *~
 *.orig
+*.swp
+
+## binaries
+*.tar
+*.tar.gz
+*.tar.xz
 
 ## objects, artefacts,...
 \#*\#
