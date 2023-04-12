@@ -34,15 +34,6 @@ Additional Ansible upgrades ("roles") will be
 
 login: pi / xdr5XDR%  
 
-```
-$ source ./labgrid-venv/bin/activate
-
-(venv) $ labgrid-client --help
-
-(venv) $ relctl.py --help
-```
-
-
 
 ## Preparation
 
@@ -58,9 +49,8 @@ Raspi OS image for Raspi 3b [64 bit], plug SD card in reader
 ```
 $ mkdir ./sd/download
 $ cd ./sd/download
-$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2022-09-26/2022-09-22-raspios-bullseye-arm64-lite.img.xz
-$ export RASPIMG=2022-09-22-raspios-bullseye-arm64-lite.img.xz
-$ unxz "$RASPIMG"
+$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-02-22/2023-02-21-raspios-bullseye-arm64-lite.img.xz
+$ unxz 2023-02-21-raspios-bullseye-arm64-lite.img.xz
 ```
 
 ## SD card: Prepare Secrets and Credentials
@@ -134,7 +124,7 @@ $ ./setup.sh /dev/sdi
 
 ## Setup RPI target
 
-Connect ethernet connection to the RPI. Plug SD card into the RPI and power the board. When it is up and running. Optionally verify the board is up.  
+Connect ethernet connection to the RPI. The RPI will show up on IP **10.1.10.203 (static)**. Plug SD card into the RPI and power the board. When it is up and running. Optionally verify the board is up.  
 ```
 $ cd ./ansible
 $ ansible all -m ping
