@@ -23,7 +23,7 @@ sleep 5
 
 
 ## boot
-BOOT="/media/${USER}/boot"
+BOOT="/media/${USER}/bootfs"
 udisksctl mount -b "${DEV}1"
 sudo cp -arfv ./rootfs/boot/* "${BOOT}"/
 udisksctl unmount -b "${DEV}1"
