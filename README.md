@@ -183,3 +183,19 @@ ssh-keygen -f "/home/user/.ssh/known_hosts" -R "10.1.10.203"
 $ echo -n "pi:" > ./boot/userconf.txt
 $ echo 'mypassword' | openssl passwd -6 -stdin >> /boot/userconf.txt
 ```
+
+*issue*: when installing linux-image.deb error on the RPI `uses unknown compression for member 'control.tar.zst', giving up`
+
+*fix*: repack .zst to .xz, example linux-image (analogue for linux-libc and linux-headers)  
+```
+$ mkdir deb-temp
+$ cd deb-temp
+$ ar x ../linux-image-6.3.0-rc6-v8+_6.3.0-rc6-gbc5ee0e040c4-2_arm64.deb
+$ zstd -d *.zst
+$ rm *.zst
+$ xz *.tar
+$ mkdir ../repacked
+$ ar r ../repacked/linux-image-6.3.0-rc6-v8+_6.3.0-rc6-gbc5ee0e040c4-2_arm64.deb  debian-binary control.tar.xz data.tar.xz
+$ cd ..
+```
+
