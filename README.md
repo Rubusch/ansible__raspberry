@@ -152,6 +152,48 @@ $ ansible-playbook -K ./rpi-conf.yml
 login 'root' for sudo rights  
 
 
+## Usage SD card mux
+
+ref: https://www.linux-automation.com/usbsdmux-M01/  
+
+first usage, setup udevrule for usbsdcard mux  
+```
+$ git clone https://github.com/pengutronix/usbsdmux.git
+$ sudo cp contrib/udev/99-usbsdmux.rules /etc/udev/rules.d/
+$ sudo udevadm control --reload-rules
+```
+now, connect the usbsdmux device  
+
+usage
+```
+$ source venv/bin/activate
+(labview-venv)$ ls /dev/usb-sd-mux/
+    id-000000001444
+
+(labview-venv)$ usbsdmux /dev/usb-sd-mux/id-000000001444 get
+    dut
+
+(labgrid-venv)$ usbsdmux /dev/usb-sd-mux/id-000000001444 host
+(labgrid-venv)$ lsblk
+     NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+     sda           8:0    1 29.8G  0 disk
+     ├─sda1        8:1    1  256M  0 part
+     └─sda2        8:2    1 29.6G  0 part
+
+(labgrid-venv)$ sudo udisksctl mount -b /dev/sda1
+
+<copy over what is needed>
+
+(labgrid-venv)$ sync
+(labgrid-venv)$ sudo udisksctl unmount -b /dev/sda1
+```
+
+switchover
+```
+(labgrid-venv)$ usbsdmux /dev/usb-sd-mux/id-000000001444 dut
+```
+
+
 ## Issues
 
 *issue*: prefer pip installed ansible?  
