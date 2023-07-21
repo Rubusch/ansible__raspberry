@@ -1,17 +1,17 @@
 ---
 # tasks file for xvcpi
-- name: Reboot
+- name: xvcpi - Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: Install needed packages
+- name: xvcpi - Install needed packages
   become: 'yes'
   block:
-    - name: Update and upgrade apt packages
+    - name: xvcpi - Update and upgrade apt packages
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: Install packages
+    - name: xvcpi - Install packages
       ansible.builtin.apt:
         pkg: "{{ item }}"
       with_items:

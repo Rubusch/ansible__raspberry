@@ -4,18 +4,18 @@
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: Check virtualenv exists
+- name: relayctl - Check virtualenv exists
   stat:
     path: /home/pi/labgrid-venv
   register: pip_virtualenv_installed
 
-- name: Update and upgrade apt packages
+- name: relayctl - Update and upgrade apt packages
   become: 'yes'
   ansible.builtin.apt:
     upgrade: yes
     update_cache: yes
 
-- name: Install packages
+- name: relayctl - Install packages
   become: 'yes'
   ansible.builtin.apt:
     pkg: "{{ item }}"
@@ -26,7 +26,7 @@
     - python3-setuptools
     - python3-usb  ## implies libusb-1.0-0
 
-- name: venv - Install python packages
+- name: relayctl - Install python packages
   become: 'yes'
   pip:
     name:
@@ -34,18 +34,18 @@
     virtualenv: /home/pi/labgrid-venv
   when: pip_virtualenv_installed.stat.exists == True
 
-- name: venv - Install pyrelayctl
+- name: relayctl - Install pyrelayctl
   pip:
     name: git+https://github.com/xypron/pyrelayctl.git
     virtualenv: /home/pi/labgrid-venv
   when: pip_virtualenv_installed.stat.exists == True
 
-- name: Install pyrelayctl
+- name: relayctl - Install pyrelayctl
   pip:
     name: git+https://github.com/xypron/pyrelayctl.git
   when: pip_virtualenv_installed.stat.exists == False
 
-- name: Setup udev rule
+- name: relayctl - Setup udev rule
   become: 'yes'
   copy:
     src: relayctl.rules
@@ -54,7 +54,7 @@
     group: pi
     mode: 0644
 
-- name: Setup relctl tool
+- name: relayctl - Setup relctl tool
   copy:
     src: relctl.py
     dest: /home/pi/labgrid-venv/bin
@@ -62,10 +62,10 @@
     group: pi
     mode: 0755
 
-- name: Reboot
+- name: relayctl - Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: All done!
+- name: relayctl - All done!
   debug:
     msg: Pyrelayctl successfully installed
