@@ -105,10 +105,10 @@
       ansible.builtin.reboot:
 
 ## hack: elpa-magit does not install well with others
-- name: Install elpa-magit
-  become: 'yes'
-  ansible.builtin.apt:
-    name: elpa-magit
+#- name: Install elpa-magit
+#  become: 'yes'
+#  ansible.builtin.apt:
+#    name: elpa-magit
 
 - name: Install package list
   become: 'yes'
