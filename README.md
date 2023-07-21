@@ -212,7 +212,7 @@ $ sudo xvcpi -v &
 sd card mux  
 ref: https://www.linux-automation.com/usbsdmux-M01/  
 
-TODO - first usage, setup udevrule for usbsdcard mux  
+first usage, setup udevrule for usbsdcard mux  
 ```
 $ git clone https://github.com/pengutronix/usbsdmux.git
 $ sudo cp contrib/udev/99-usbsdmux.rules /etc/udev/rules.d/
@@ -221,20 +221,18 @@ $ reboot
 ```
 now, connect the usbsdmux device  
 
-TODO - first usage, build xvcpi software
+first usage, build xvcpi software on the RPI (arm toolchain)  
 ```
 $ cd ./github__xvcpi
 $ make
-
+```
 
 
 ## TODOs
 
-- Automize build xvcpi software
+- Remove apache2 reliably, since we use lighttpd (`systemctl status` is degraded due to apache2)
 - Automize usbsdcard mux device recongnition (udev rule)
 - Current ansible provisioning needs three restarts (404 errors, and similar)
-- Disable, and in case purge apache2, we use lighttpd
-
 
 
 ## Issues
