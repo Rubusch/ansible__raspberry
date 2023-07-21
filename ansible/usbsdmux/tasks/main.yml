@@ -47,11 +47,20 @@
       - wheel
     virtualenv: /home/pi/labgrid-venv
 
-- name: venv - Clone, install usbsdmux and install requirements
+- name: usbsdmux - Clone, install usbsdmux and install requirements
   pip:
     name: git+https://github.com/pengutronix/usbsdmux
     virtualenv: /home/pi/labgrid-venv
 
-- name: All done!
+- name: usbsdmux - Setup some message
+  become: 'yes'
+  copy:
+    src: 99-usbsdmux.rules
+    dest: /etc/udev/rules.d/99-usbsdmux.rules
+    owner: pi
+    group: pi
+    mode: 0644
+
+- name: usbsdmux - All done!
   debug:
     msg: USB SD Mux installed
