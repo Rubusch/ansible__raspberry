@@ -155,9 +155,10 @@
     name: apache2
     purge: yes
 
-- name: Vim install YCM
-  shell: |
-    vim-addon-manager install youcompleteme  
+## ycm would re-install apache2 and plethoria of additional packages
+#- name: Vim install YCM
+#  shell: |
+#    vim-addon-manager install youcompleteme  
 
 - name: Autoclean package list
   become: 'yes'
