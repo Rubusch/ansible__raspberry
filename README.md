@@ -230,9 +230,9 @@ $ make
 
 ## TODOs
 
-- Remove apache2 reliably, since we use lighttpd (`systemctl status` is degraded due to apache2)
-- Automize usbsdcard mux device recongnition (udev rule)
-- Current ansible provisioning needs three restarts (404 errors, and similar)
+- Remove apache2 reliably, since we use lighttpd (`systemctl status` is degraded because of apache2)
+- Fix ansible provisioning needs restarts (404 errors, and similar)
+- Fix xvcpi JTAG forwareder not working
 
 
 ## Issues
