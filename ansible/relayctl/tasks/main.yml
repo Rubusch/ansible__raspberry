@@ -49,7 +49,7 @@
   become: 'yes'
   copy:
     src: relayctl.rules
-    dest: /lib/udev/rules.d/60-relayctl.rules
+    dest: /etc/udev/rules.d/60-relayctl.rules
     owner: pi
     group: pi
     mode: 0644
