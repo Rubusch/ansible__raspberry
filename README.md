@@ -122,18 +122,15 @@ $ cd ./sd
 $ ./setup.sh /dev/sdi
 ```
 
-## Setup RPI target
-
-Connect ethernet connection to the RPI. The RPI will show up on IP **10.1.10.203 (static)**. Plug SD card into the RPI and power the board. When it is up and running. Optionally verify the board is up.  
+Plug the card into the RPI. Connect ethernet connection to the RPI. The RPI will show up on IP **10.1.10.203 (static)**. When it is up and running. Optionally verify the board is up.  
 ```
 $ cd ./ansible
 $ ansible all -m ping
 ```
 
-Optionally update ssh known_hosts, NB: ``ssh-keyscan`` should return something, when the device is up and running  
+(Optionally) update ssh known_hosts  
 ```
 $ ssh-keygen -f ~/.ssh/known_hosts -R "10.1.10.203"
-
 $ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
     # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
     # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
@@ -143,30 +140,30 @@ $ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
 
 ```
 
-Execute ansible provisioning  
+Execute ansible provisioning, login a user eligible for sudo rights   
 ```
 $ cd ./ansible
 $ ansible-playbook -K ./rpi-conf.yml
-    BECOME password: 
+    BECOME password:
 ```
-login 'root' for sudo rights  
+
+In case this will need several restarts, if the provisioning runs into load issues..  
 
 
-## Usage SD card mux
+## Usage
 
-ref: https://www.linux-automation.com/usbsdmux-M01/  
+NB: there are still certain fixes to be done, see TODOs   
 
-first usage, setup udevrule for usbsdcard mux  
 ```
-$ git clone https://github.com/pengutronix/usbsdmux.git
-$ sudo cp contrib/udev/99-usbsdmux.rules /etc/udev/rules.d/
-$ sudo udevadm control --reload-rules
-```
-now, connect the usbsdmux device  
+$ ssh pi@10.1.10.203
+    login: pi
+    password: xdr5XDR%
 
-usage
-```
-$ source venv/bin/activate
+$ screen
+
+<open up some sessions>
+
+$ source ./labgrid-venv/bin/activate
 (labview-venv)$ ls /dev/usb-sd-mux/
     id-000000001444
 
@@ -188,10 +185,56 @@ $ source venv/bin/activate
 (labgrid-venv)$ sudo udisksctl unmount -b /dev/sda1
 ```
 
-switchover
+switchover  
 ```
 (labgrid-venv)$ usbsdmux /dev/usb-sd-mux/id-000000001444 dut
 ```
+
+power the device  
+```
+(labgrid-venv)$ relctl.py -d0 -t1
+```
+
+in another screen session e.g. open a terminal  
+```
+$ tio /dev/ttyUSB1
+```
+
+in another screen session e.g. run xvcpi server  
+```
+$ cd ./github__xvcpi
+$ sudo xvcpi -v &
+```
+
+
+## Development
+
+sd card mux  
+ref: https://www.linux-automation.com/usbsdmux-M01/  
+
+TODO - first usage, setup udevrule for usbsdcard mux  
+```
+$ git clone https://github.com/pengutronix/usbsdmux.git
+$ sudo cp contrib/udev/99-usbsdmux.rules /etc/udev/rules.d/
+$ sudo udevadm control --reload-rules
+$ reboot
+```
+now, connect the usbsdmux device  
+
+TODO - first usage, build xvcpi software
+```
+$ cd ./github__xvcpi
+$ make
+
+
+
+## TODOs
+
+- Automize build xvcpi software
+- Automize usbsdcard mux device recongnition (udev rule)
+- Current ansible provisioning needs three restarts (404 errors, and similar)
+- Disable, and in case purge apache2, we use lighttpd
+
 
 
 ## Issues
