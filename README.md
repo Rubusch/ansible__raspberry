@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 # Raspberry Pi Provisioning Setup
 
 
@@ -282,3 +284,23 @@ $ ar r ../repacked/linux-image-6.3.0-rc6-v8+_6.3.0-rc6-gbc5ee0e040c4-2_arm64.deb
 $ cd ..
 ```
 
+
+*issue*: userspace application is (cross)compiled against wrong GLIBC version
+executing on the target shows the following error
+```
+$ ./userland.elf 
+    ./userland.elf: /lib/aarch64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by ./userland.elf)
+$ /lib/aarch64-linux-gnu/libc.so.6 
+    GNU C Library (Debian GLIBC 2.31-13+rpt2+rpi1+deb11u5) stable release version 2.31.
+    Copyright (C) 2020 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.
+    There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+    PARTICULAR PURPOSE.
+    Compiled by GNU CC version 10.2.1 20210110.
+    libc ABIs: UNIQUE ABSOLUTE
+    For bug reporting instructions, please see:
+    <http://www.debian.org/Bugs/>.
+```
+
+fix: 
+probably use build docker for ubuntu 20.04 instead of 22.04
