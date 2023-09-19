@@ -51,8 +51,8 @@ Raspi OS image for Raspi 3b [64 bit], plug SD card in reader
 ```
 $ mkdir ./sd/download
 $ cd ./sd/download
-$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-02-22/2023-02-21-raspios-bullseye-arm64-lite.img.xz
-$ unxz 2023-02-21-raspios-bullseye-arm64-lite.img.xz
+$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
+$ unxz 2023-05-03-raspios-bullseye-arm64-lite.img.xz
 ```
 
 ## SD card: Prepare Secrets and Credentials
