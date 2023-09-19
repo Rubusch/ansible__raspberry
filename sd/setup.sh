@@ -21,19 +21,18 @@ fi
 sudo dd if="${IMG}" of="${DEV}" bs=4M conv=fdatasync status=progress
 sleep 5
 
-
 ## boot
 BOOT="/media/${USER}/bootfs"
 udisksctl mount -b "${DEV}1"
-sudo cp -arfv ./rootfs/boot/* "${BOOT}"/
+sudo cp -arfv ./boot/* "${BOOT}"/
 udisksctl unmount -b "${DEV}1"
-
 
 ## rootfs (fix networking for initial ssh connection via eth0)
 ROOTFS="/media/${USER}/rootfs"
 udisksctl mount -b "${DEV}2"
-sudo cp -arfv ./rootfs/etc "${ROOTFS}/"
+sudo cp -arfv ./rootfs/* "${ROOTFS}/"
 
+## secrets
 sudo cp -arfv ./secret/etc "${ROOTFS}/"
 sudo cp -arfv ./secret/home/pi "${ROOTFS}/home/"
 
