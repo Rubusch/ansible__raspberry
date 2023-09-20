@@ -21,7 +21,6 @@ fi
 sudo dd if="${IMG}" of="${DEV}" bs=4M conv=fdatasync status=progress
 sleep 5
 
-
 ## boot
 BOOT="/media/${USER}/bootfs"
 udisksctl mount -b "${DEV}1"
