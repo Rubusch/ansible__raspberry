@@ -25,16 +25,18 @@ sleep 5
 ## boot
 BOOT="/media/${USER}/bootfs"
 udisksctl mount -b "${DEV}1"
-sudo cp -arfv ./rootfs/boot/* "${BOOT}"/
+sudo cp -arfv ./boot/* "${BOOT}"/
 udisksctl unmount -b "${DEV}1"
-
 
 ## rootfs (fix networking for initial ssh connection via eth0)
 ROOTFS="/media/${USER}/rootfs"
 udisksctl mount -b "${DEV}2"
-sudo cp -arfv ./rootfs/etc "${ROOTFS}/"
+sudo cp -arfv ./rootfs/* "${ROOTFS}/"
 
+## (1/2) secret: /etc configs
 sudo cp -arfv ./secret/etc "${ROOTFS}/"
+
+## (2/2) secret: ~/ configs
 sudo cp -arfv ./secret/home/pi "${ROOTFS}/home/"
 
 ## rootfs - remove dhcpcd (we use dnsmasq)
