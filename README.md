@@ -51,16 +51,16 @@ Raspi OS image for Raspi 3b [64 bit], plug SD card in reader
 ```
 $ mkdir ./sd/download
 $ cd ./sd/download
-$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-02-22/2023-02-21-raspios-bullseye-arm64-lite.img.xz
-$ unxz 2023-02-21-raspios-bullseye-arm64-lite.img.xz
+$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
+$ unxz 2023-05-03-raspios-bullseye-arm64-lite.img.xz
 ```
 
-## SD card: Prepare Secrets and Credentials
+## SD card: Prepare Secrets
 
 Prepare a folder ``secret`` and provide content as follows  
 ```
-$ cd ./sd
-$ mkdir ./secret
+$ mkdir ./sd/secret
+$ cd ./sd/secret
 ...
 $ tree ./secret/ -a
 ./secret/
@@ -113,7 +113,7 @@ $ cat ./secret/etc/network/interfaces
     #    netmask 255.255.255.0
 ```
 
-## Setup SD card
+## SD card: Flash the minimal Setup
 
 Plug card into card reader. In case configure ./setup.sh to use the 64-bit or the 32-bit Pi OS image.   
 ```
@@ -124,13 +124,28 @@ $ cd ./sd
 $ ./setup.sh /dev/sdi
 ```
 
-Plug the card into the RPI. Connect ethernet connection to the RPI. The RPI will show up on IP **10.1.10.203 (static)**. When it is up and running. Optionally verify the board is up.  
+## Raspberry: Prepare the Ansible setup
+
+- Configure the expected target IP in ``./ansible/hosts``. For example, if the RPI will show up on IP **10.1.10.203 (static)**.
+- Configure the ssh key to use in ``./ansible.cfg``, under ``private_key_file``.
+
+
+## Raspberry: Automized Setup
+
+Plug the card into the RPI. Connect ethernet connection to the RPI. Verify the board is up and connection works out.  
 ```
 $ cd ./ansible
 $ ansible all -m ping
+    10.1.10.203 | SUCCESS => {
+        "ansible_facts": {
+            "discovered_interpreter_python": "/usr/bin/python"
+        },
+        "changed": false,
+        "ping": "pong"
+    }
 ```
 
-(Optionally) update ssh known_hosts  
+(Optionally) update ssh ``known_hosts``  
 ```
 $ ssh-keygen -f ~/.ssh/known_hosts -R "10.1.10.203"
 $ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
@@ -142,7 +157,7 @@ $ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
 
 ```
 
-Execute ansible provisioning, login a user eligible for sudo rights   
+Execute ansible provisioning, login a user eligible for sudo rights  
 ```
 $ cd ./ansible
 $ ansible-playbook -K ./rpi-conf.yml
@@ -154,12 +169,13 @@ In case this will need several restarts, if the provisioning runs into load issu
 
 ## Usage
 
-NB: there are still certain fixes to be done, see TODOs   
+NB: there are still certain fixes to be done, see TODOs  
 
 ```
 $ ssh pi@10.1.10.203
     login: pi
     password: xdr5XDR%
+    (but should use certificate!)
 
 $ screen
 
@@ -193,6 +209,7 @@ switchover
 ```
 
 power the device  
+TODO alternative GPIO triggered relay  
 ```
 (labgrid-venv)$ relctl.py -d0 -t1
 ```
@@ -239,6 +256,14 @@ $ make
 
 ## Issues
 
+*issue*: how to change hostname in sd setup  
+
+fix: edit ``sd/rootfs/etc/hosts`` and ``sd/rootfs/etc/hostname``  
+
+*issue*: ssh certificate falls back to password login  
+
+fix: check ``/home/pi`` and ``/home/pi/.ssh`` folders need permissions *0700* (check systemctl log on the device why authentication failed)  
+
 *issue*: prefer pip installed ansible?  
 
 ```
@@ -269,7 +294,7 @@ $ echo -n "pi:" > ./boot/userconf.txt
 $ echo 'mypassword' | openssl passwd -6 -stdin >> /boot/userconf.txt
 ```
 
-*issue*: when installing linux-image.deb error on the RPI `uses unknown compression for member 'control.tar.zst', giving up`
+*issue*: when installing linux-image.deb error on the RPI `uses unknown compression for member 'control.tar.zst', giving up`  
 
 *fix*: repack .zst to .xz, example linux-image (analogue for linux-libc and linux-headers)  
 ```
@@ -285,8 +310,8 @@ $ cd ..
 ```
 
 
-*issue*: userspace application is (cross)compiled against wrong GLIBC version
-executing on the target shows the following error
+*issue*: userspace application is (cross)compiled against wrong GLIBC version  
+executing on the target shows the following error  
 ```
 $ ./userland.elf 
     ./userland.elf: /lib/aarch64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by ./userland.elf)
@@ -302,5 +327,9 @@ $ /lib/aarch64-linux-gnu/libc.so.6
     <http://www.debian.org/Bugs/>.
 ```
 
-fix: 
-probably use build docker for ubuntu 20.04 instead of 22.04
+fix: probably use build docker for ubuntu 20.04 instead of 22.04  
+
+
+*issue*: while performing ansible provisioning, provisioning stops, with a huge red output ending with ``Temporary failure resolving 'deb.debian.org'"``  
+
+fix: wait some seconds, restart ansible commissioning (...)   

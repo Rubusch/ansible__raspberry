@@ -14,9 +14,10 @@
       import_role:
         name: usbsdmux
 
-    - name: Relay Control
-      import_role:
-        name: relayctl
+## NB: not needed for driving (single) relays by gpio
+#    - name: Relay Control
+#      import_role:
+#        name: relayctl
 
     - name: Xilinx Virtual Cable
       import_role:

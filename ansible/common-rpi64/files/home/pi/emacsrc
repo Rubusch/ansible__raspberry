@@ -7,8 +7,8 @@
 (package-initialize)
 
 ;; melpa extension
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+;(require 'package)
+;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 
 ;; no auto-indent at ENTER or the like
 (setq electric-indent-mode nil)

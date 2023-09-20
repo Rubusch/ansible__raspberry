@@ -4,6 +4,12 @@
   become: 'yes'
   ansible.builtin.reboot:
 
+- name: DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
 - name: usbsdmux - Check virtualenv exists
   stat:
     path: /home/pi/labgrid-venv

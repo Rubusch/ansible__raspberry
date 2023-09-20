@@ -79,7 +79,7 @@ packages:
   - screen
   - emacs-goodies-el
   - exuberant-ctags
-  - git-all
+  - git-core
   - python3
   - python3-virtualenv
   - python3-pip

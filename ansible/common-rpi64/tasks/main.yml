@@ -65,6 +65,12 @@
   register: os_info
   debugger: on_failed
 
+- name: DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
 - name: locales
   become: 'yes'
   block:
@@ -104,6 +110,12 @@
     - name: Reboot
       ansible.builtin.reboot:
 
+- name: DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
 ## hack: elpa-magit does not install well with others
 #- name: Install elpa-magit
 #  become: 'yes'
@@ -120,6 +132,12 @@
   become: 'yes'
   ansible.builtin.reboot:
 
+- name: DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
 ## hack: elpa-magit does not install well with other packages...
 - name: Install emacs goodies
   become: 'yes'
@@ -129,6 +147,12 @@
 - name: Reboot
   become: 'yes'
   ansible.builtin.reboot:
+
+- name: DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
 
 - name: Enable ssh
   become: 'yes'
@@ -155,10 +179,10 @@
     name: apache2
     purge: yes
 
-## ycm would re-install apache2 and plethoria of additional packages
+## ycm would re-install apache2 and plethora of additional packages
 #- name: Vim install YCM
 #  shell: |
-#    vim-addon-manager install youcompleteme  
+#    vim-addon-manager install youcompleteme
 
 - name: Autoclean package list
   become: 'yes'
@@ -173,6 +197,12 @@
 - name: Reboot
   become: 'yes'
   ansible.builtin.reboot:
+
+- name: DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
 
 - name: All done!
   debug:
