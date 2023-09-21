@@ -1,21 +1,27 @@
 ---
 # tasks file for labgrid provisioning
-- name: Reboot
+- name: labgrid - Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: Check virtualenv exists
+- name: DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
+- name: labgrid - Check virtualenv exists
   stat:
     path: /home/pi/labgrid-venv
   register: pip_virtualenv_installed
 
-- name: Update and upgrade apt packages
+- name: labgrid - Update and upgrade apt packages
   become: 'yes'
   ansible.builtin.apt:
     upgrade: yes
     update_cache: yes
 
-- name: Install packages
+- name: labgrid - Install packages
   become: 'yes'
   ansible.builtin.apt:
     pkg: "{{ item }}"
@@ -26,20 +32,20 @@
     - python3-setuptools
     - virtualenv
 
-- name: Create virtualenv
+- name: labgrid - Create virtualenv
   command:
     cmd: virtualenv labgrid-venv -p python3
     creates: "labgrid-venv"
   when: pip_virtualenv_installed.stat.exists == False
 
 ## pyserial: this version should be used (10/2022)
-- name: venv - Fix pyserial reinstall
+- name: labgrid - Fix pyserial reinstall
   pip:
     name: https://github.com/labgrid-project/pyserial/archive/v3.4.0.1.zip#egg=pyserial
     state: forcereinstall
     virtualenv: /home/pi/labgrid-venv
 
-- name: venv - Install python packages
+- name: labgrid - Install python packages
   become: 'yes'
   pip:
     name:
@@ -47,18 +53,18 @@
       - wheel
     virtualenv: /home/pi/labgrid-venv
 
-- name: venv - Clone, install labgrid and install requirements
+- name: labgrid - Clone, install labgrid and install requirements
   pip:
     name: git+https://github.com/labgrid-project/labgrid
     virtualenv: /home/pi/labgrid-venv
 
-- name: Setup some message
+- name: labgrid - Setup some message
   become: 'yes'
   copy:
     src: motd
     dest: /etc/motd
     mode: 0644
 
-- name: All done!
+- name: labgrid - All done!
   debug:
     msg: Labgrid installed

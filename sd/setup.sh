@@ -37,6 +37,9 @@ sudo cp -arfv ./secret/etc "${ROOTFS}/"
 
 ## (2/2) secret: ~/ configs
 sudo cp -arfv ./secret/home/pi "${ROOTFS}/home/"
+sudo chown -R 1000.1000 "${ROOTFS}/home/pi"
+test -d "${ROOTFS}/home/pi" && sudo chmod 700 "${ROOTFS}/home/pi" || true
+test -d "${ROOTFS}/home/pi/.ssh" && chmod 700 "${ROOTFS}/home/pi/.ssh" || true
 
 ## rootfs - remove dhcpcd (we use dnsmasq)
 sudo rm -fv "${ROOTFS}/etc/systemd/system/multi-user.target.wants/dhcpcd.service"
