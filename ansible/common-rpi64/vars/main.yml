@@ -86,7 +86,6 @@ packages:
   - python3-setuptools
   - virtualenv
   - vim-bitbake
-  - motion
   - tcpdump
   - nmap
   - tio
