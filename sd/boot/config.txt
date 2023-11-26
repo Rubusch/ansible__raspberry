@@ -80,6 +80,9 @@ otg_mode=1
 # Run as fast as firmware / board allows
 arm_boost=1
 
+# powersave off, shall fix eth0/wlan0 losses due to powersave
+dtparam=eee=off
+
 [all]
 enable_uart=1
 dtoverlay=pi3-disable-bt

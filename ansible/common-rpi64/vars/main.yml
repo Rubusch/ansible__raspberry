@@ -86,7 +86,7 @@ packages:
   - python3-setuptools
   - virtualenv
   - vim-bitbake
-  - motion
+  - mosh
   - tcpdump
   - nmap
   - tio
@@ -98,3 +98,4 @@ packages:
   - cmake
   - libftdi1-dev
   - zstd
+  - libcamera-apps
