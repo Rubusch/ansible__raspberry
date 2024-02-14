@@ -1,5 +1,5 @@
 [raspi]
-10.1.10.203
+10.1.10.200
 
 [raspi:vars]
 ansible_connection=ssh
