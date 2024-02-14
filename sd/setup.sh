@@ -24,7 +24,8 @@ sleep 5
 ## boot
 BOOT="/media/${USER}/bootfs"
 udisksctl mount -b "${DEV}1"
-sudo cp -arfv ./boot/* "${BOOT}"/
+## /boot [fat32] won't keep protections, which will throw an error -> true
+sudo cp -arfv ./boot/* "${BOOT}"/ || true
 udisksctl unmount -b "${DEV}1"
 
 ## rootfs (fix networking for initial ssh connection via eth0)
@@ -37,7 +38,7 @@ sudo cp -arfv ./secret/etc "${ROOTFS}/"
 
 ## (2/2) secret: ~/ configs
 sudo cp -arfv ./secret/home/pi "${ROOTFS}/home/"
-sudo chown -R 1000.1000 "${ROOTFS}/home/pi"
+sudo chown -R 1000:1000 "${ROOTFS}/home/pi"
 test -d "${ROOTFS}/home/pi" && sudo chmod 700 "${ROOTFS}/home/pi" || true
 test -d "${ROOTFS}/home/pi/.ssh" && chmod 700 "${ROOTFS}/home/pi/.ssh" || true
 
