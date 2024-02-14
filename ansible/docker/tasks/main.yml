@@ -21,7 +21,8 @@
   become: 'yes'
   ansible.builtin.user:
     name: pi
-    groups: pi, docker
+    groups: docker
+    append: 'yes'
 
 - name: docker - All done!
   debug:
