@@ -1,0 +1,29 @@
+---
+# tasks file for x11
+- name: x11 - Reboot
+  become: 'yes'
+  ansible.builtin.reboot:
+
+- name: x11 - DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
+- name: x11 - Update and upgrade apt packages
+  become: 'yes'
+  ansible.builtin.apt:
+    upgrade: 'yes'
+    update_cache: 'yes'
+
+- name: x11 - Install packages
+  become: 'yes'
+  ansible.builtin.apt:
+    pkg: "{{ item }}"
+  with_items:
+    - x11-apps
+    # TODO append
+
+- name: x11 - All done!
+  debug:
+    msg: X11 installed

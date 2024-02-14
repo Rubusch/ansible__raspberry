@@ -1,0 +1,12 @@
+---
+# vars file for docker
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg2
+  - software-properties-common
+  - docker.io
+  - docker-compose
+  - docker-clean
+

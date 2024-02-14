@@ -1,0 +1,28 @@
+---
+# tasks file for docker
+- name: docker - Reboot
+  become: 'yes'
+  ansible.builtin.reboot:
+
+- name: docker - DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
+- name: docker - Install docker
+  become: 'yes'
+  ansible.builtin.apt:
+    pkg: "{{ packages }}"
+    state: present
+    cache_valid_time: 86400
+
+- name: docker - Add the user to group docker
+  become: 'yes'
+  ansible.builtin.user:
+    name: pi
+    groups: pi, docker
+
+- name: docker - All done!
+  debug:
+    msg: Docker installed
