@@ -74,7 +74,9 @@ disable_overscan=1
 # (e.g. for USB device mode) or if USB support is not required.
 otg_mode=1
 
-[all]
+[pi5]
+dtparam=uart0
+dtparam=uart0_console
 
 [pi4]
 # Run as fast as firmware / board allows
