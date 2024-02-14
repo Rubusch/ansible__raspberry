@@ -18,8 +18,8 @@
 - name: labgrid - Update and upgrade apt packages
   become: 'yes'
   ansible.builtin.apt:
-    upgrade: yes
-    update_cache: yes
+    upgrade: 'yes'
+    update_cache: 'yes'
 
 - name: labgrid - Install packages
   become: 'yes'
