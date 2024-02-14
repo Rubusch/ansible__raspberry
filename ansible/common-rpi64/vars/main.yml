@@ -47,7 +47,6 @@ packages:
   - bin86
   - patch
   - doxygen
-  - python-is-python2
   - mercurial
   - kmod
   - fonts-noto-cjk
@@ -98,4 +97,3 @@ packages:
   - cmake
   - libftdi1-dev
   - zstd
-  - libcamera-apps

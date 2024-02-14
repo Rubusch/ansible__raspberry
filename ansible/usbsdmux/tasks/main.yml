@@ -18,8 +18,8 @@
 - name: usbsdmux - Update and upgrade apt packages
   become: 'yes'
   ansible.builtin.apt:
-    upgrade: yes
-    update_cache: yes
+    upgrade: 'yes'
+    update_cache: 'yes'
 
 - name: usbsdmux - Install packages
   become: 'yes'

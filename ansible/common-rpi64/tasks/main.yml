@@ -1,10 +1,10 @@
 ---
 # tasks file for rpi
-- name: Fix login
+- name: rpi - Fix login
   become: 'yes'
   ansible.builtin.command: raspi-config nonint do_boot_behaviour B2
 
-- name: Fix /usr/local permissions
+- name: rpi - Fix /usr/local permissions
   become: 'yes'
   ansible.builtin.file:
     path: /usr/local
@@ -13,11 +13,11 @@
     owner: pi
     group: pi
 
-- name: Expand rootfs
+- name: rpi - Expand rootfs
   become: 'yes'
   ansible.builtin.command: raspi-config --expand-rootfs
 
-- name: Copy pi configs
+- name: rpi - Copy pi configs
   copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -31,8 +31,8 @@
     - { src: home/pi/emacsstarter.sh, dest: /home/pi/.emacsstarter.sh }
     - { src: home/pi/config/, dest: /home/pi/.config }
 
-## actually, for python prefer virtualenv to force linking .local (dirty hack)
-- name: Symlink .local to /usr/local
+  ## actually, for python prefer virtualenv to force linking .local (dirty hack)
+- name: rpi - Symlink .local to /usr/local
   file:
     src: /usr/local
     dest: "{{ ansible_env.HOME }}/.local"
@@ -40,7 +40,7 @@
     group: pi
     state: link
 
-- name: Copy etc configs
+- name: rpi - Copy etc configs
   become: 'yes'
   copy:
     src: "{{ item.src }}"
@@ -53,11 +53,11 @@
     - { src: etc/sudoers, dest: /etc/sudoers }
     - { src: usr/share/polkit-1, dest: /usr/share/polkit-1 }
 
-- name: Reboot
+- name: rpi - Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: Wifi
+- name: rpi - Wifi
   become: 'yes'
   shell: |
     sudo rfkill unblock all
@@ -65,52 +65,52 @@
   register: os_info
   debugger: on_failed
 
-- name: DHCP client for wlan0
+- name: rpi - DHCP client for wlan0
   become: 'yes'
   shell: |
     sudo killall dhclient
     sudo dhclient wlan0
 
-- name: locales
+- name: rpi - fix locales
   become: 'yes'
   block:
-    - name: Install locales
+    - name: rpi/locales - Install locales
       ansible.builtin.apt:
         update_cache: yes
         cache_valid_time: 3600
         name: locales
 
-    - name: Ensure localisation files for '{{ config_system_locale }}' are available
+    - name: rpi/locales - Ensure localisation files for '{{ config_system_locale }}' are available
       locale_gen:
         name: "{{ config_system_locale }}"
         state: present
 
-    - name: Ensure localisation files for '{{ config_system_language }}' are available
+    - name: rpi/locales - Ensure localisation files for '{{ config_system_language }}' are available
       locale_gen:
         name: "{{ config_system_language }}"
         state: present
 
-    - name: Get current locale and language configuration
+    - name: rpi/locales - Get current locale and language configuration
       command: localectl status
       register: locale_status
       changed_when: false
 
-    - name: Parse 'LANG' from current locale and language configuration
+    - name: rpi/locales - Parse 'LANG' from current locale and language configuration
       set_fact:
         locale_lang: "{{ locale_status.stdout | regex_search('LANG=([^\n]+)', '\\1') | first }}"
 
-    - name: Parse 'LANGUAGE' from current locale and language configuration
+    - name: rpi/locales - Parse 'LANGUAGE' from current locale and language configuration
       set_fact:
         locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
 
-    - name: Configure locale to '{{ config_system_locale }}' and language to '{{ config_system_language }}'
+    - name: rpi/locales - Configure locale to '{{ config_system_locale }}' and language to '{{ config_system_language }}'
       command: localectl set-locale LANG={{ config_system_locale }} LANGUAGE={{ config_system_language }}
       changed_when: locale_lang != config_system_locale or locale_language != config_system_language
 
-    - name: Reboot
+    - name: rpi/locales - Reboot
       ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
+- name: rpi - DHCP client for wlan0
   become: 'yes'
   shell: |
     sudo killall dhclient
@@ -122,58 +122,58 @@
 #  ansible.builtin.apt:
 #    name: elpa-magit
 
-- name: Install package list
+- name: rpi - Install package list
   become: 'yes'
   ansible.builtin.apt:
     pkg: "{{ packages }}"
     state: latest
 
-- name: Reboot
+- name: rpi - Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
+- name: rpi - DHCP client for wlan0
   become: 'yes'
   shell: |
     sudo killall dhclient
     sudo dhclient wlan0
 
 ## hack: elpa-magit does not install well with other packages...
-- name: Install emacs goodies
+- name: rpi - Install emacs goodies
   become: 'yes'
   ansible.builtin.apt:
     name: emacs-goodies-el
 
-- name: Reboot
+- name: rpi - Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
+- name: rpi - DHCP client for wlan0
   become: 'yes'
   shell: |
     sudo killall dhclient
     sudo dhclient wlan0
 
-- name: Enable ssh
+- name: rpi - Enable ssh
   become: 'yes'
   systemd:
     name: ssh.service
     enabled: true
     masked: no
 
-- name: Disable systemd ModemManager
+- name: rpi - Disable systemd ModemManager
   become: 'yes'
   ansible.builtin.systemd:
     name: ModemManager.service
     enabled: false
 
-- name: Enable systemd lighttpd
+- name: rpi - Enable systemd lighttpd
   become: 'yes'
   ansible.builtin.systemd:
     name: lighttpd.service
     enabled: true
 
-- name: Remove apache2
+- name: rpi - Remove apache2
   become: 'yes'
   ansible.builtin.apt:
     name: apache2
@@ -184,26 +184,32 @@
 #  shell: |
 #    vim-addon-manager install youcompleteme
 
-- name: Autoclean package list
+- name: rpi - fix timezone to Europe/Zurich
+  become: 'yes'
+  shell: |
+    sudo mv /etc/localtime /etc/localtime-wtf
+    ln -s /usr/share/zoneinfo/Europe/Zurich /etc/localtime
+
+- name: rpi - Autoclean package list
   become: 'yes'
   ansible.builtin.apt:
     autoclean: yes
 
-- name: Autoremove dependencies no longer required
+- name: rpi - Autoremove dependencies no longer required
   become: 'yes'
   ansible.builtin.apt:
     autoremove: yes
 
-- name: Reboot
+- name: rpi - Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
+- name: rpi - DHCP client for wlan0
   become: 'yes'
   shell: |
     sudo killall dhclient
     sudo dhclient wlan0
 
-- name: All done!
+- name: rpi - All done!
   debug:
     msg: Packages have been successfully installed
