@@ -43,7 +43,6 @@ login: pi / xdr5XDR%
 - quickfix: describe how and where to set hostname
 - fix: make target hostname a parameter
 - fix: make target IP a parameter
-- add: make a saleae role to install saleae (makes sense if we have power, e.g. on RPI5)
 
 ## Preparation
 
@@ -138,9 +137,8 @@ NB: if there is no `READY.` the SD card setup failed.
 
 ## Raspberry: Prepare the Ansible setup
 
-- Configure the expected target IP in ``./ansible/hosts``. For example, if the RPI will show up on IP **10.1.10.203 (static)**.
-- Configure the ssh key to use in ``./ansible.cfg``, under ``private_key_file``.
-
+- Configure the expected target IP in `./ansible/hosts`. For example, if the RPI will show up on IP **10.1.10.203 (static)**.
+- Configure the ssh key to use in `./ansible.cfg`, under `private_key_file`.
 
 ## Raspberry: Automized Setup
 

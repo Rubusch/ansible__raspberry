@@ -5,7 +5,11 @@
 ## - provide rootfs secrets under "secrets"
 ## - try to make sure you have sudo permissions
 
-DEV="${1}"
+die()
+{
+	echo "FAILED! $@"
+	exit 1
+}
 
 ## 64-bit pi OS
 IMG="$( ls ./download/*-arm64-lite.img )"
@@ -13,9 +17,19 @@ IMG="$( ls ./download/*-arm64-lite.img )"
 ## 32-bit pi OS
 #IMG="$( ls ./download/*-armhf-lite.img )"
 
-if [ -z "${DEV}" ]; then
-	echo "usage: ${0} <dev of SD card>"
-	exit 1
+if [ $# -ne 2 ]; then
+	die "usage: ${0} <dev of SD card> <hostname> [ <static ip> ]"
+fi
+DEV="$1"
+test ! -e "$DEV" && die "'$DEV' does not exist!" || true
+
+HNAME="$2"
+sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" ./sd/rootfs/etc/hosts
+echo "$HNAME" > ./sd/rootfs/etc/hostname
+
+if [ $# -eq 3 ]; then
+	IPADDR="$3"
+	sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" ./sd/rootfs/etc/dnsmasq.conf
 fi
 
 sudo dd if="${IMG}" of="${DEV}" bs=4M conv=fdatasync status=progress
