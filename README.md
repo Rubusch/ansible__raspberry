@@ -42,8 +42,7 @@ login: pi / xdr5XDR%
 - quickfix: dnsmasq keeps IP as listen ip, when adjusting IP needs to be mentioned how & where to change, too
 - quickfix: describe how and where to set hostname
 - fix: make target hostname a parameter
-- fix: make target IP a parameter 
-- fix: in .bashrc append `\n` to PS1 before prompt
+- fix: make target IP a parameter
 - add: make a saleae role to install saleae (makes sense if we have power, e.g. on RPI5)
 
 ## Preparation
