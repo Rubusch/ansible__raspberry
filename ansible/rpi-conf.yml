@@ -8,25 +8,25 @@
 
     - name: Labgrid
       import_role:
-        name: labgrid
+        name: mod-labgrid
 
     - name: USB-SD Mux
       import_role:
-        name: usbsdmux
+        name: mod-usbsdmux
 
     - name: Docker setup
       import_role:
-        name: docker
+        name: mod-docker
 
     - name: X11 setup
       import_role:
-        name: x11
+        name: mod-x11
 
 ## NB: not needed for driving (single) relays by gpio
 #    - name: Relay Control
 #      import_role:
-#        name: relayctl
+#        name: mod-relayctl
 
 #    - name: Xilinx Virtual Cable
 #      import_role:
-#        name: xvcpi
+#        name: mod-xvcpi
