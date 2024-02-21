@@ -97,3 +97,4 @@ packages:
   - cmake
   - libftdi1-dev
   - zstd
+  - vlan
