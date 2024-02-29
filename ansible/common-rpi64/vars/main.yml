@@ -98,3 +98,4 @@ packages:
   - libftdi1-dev
   - zstd
   - vlan
+  - gpiod
