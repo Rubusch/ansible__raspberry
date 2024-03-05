@@ -128,12 +128,12 @@ $ lsblk
    -> /dev/sdi
 
 $ cd ./sd
-$ ./setup.sh /dev/sdi
+$ ./setup.sh /dev/sdi CTRL02 10.1.10.33
     ...
 	READY.
 $
 ```
-NB: if there is no `READY.` the SD card setup failed.  
+NB: If there is no `READY.` the SD card setup failed.  
 
 ## Raspberry: Prepare the Ansible setup
 

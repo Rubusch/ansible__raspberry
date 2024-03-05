@@ -1,6 +1,8 @@
 #!/bin/sh -e
 ##
-## provide e.g. /dev/sdi, when there is an /dev/sdi1 and /dev/sdi2
+## provide e.g. /dev/sdh, when there is an /dev/sdh1 and /dev/sdh2
+## e.g.
+## $ ./setup.sh /dev/sdh CTRL01 10.1.10.33
 ##
 ## - provide rootfs secrets under "secrets"
 ## - try to make sure you have sudo permissions
@@ -18,18 +20,20 @@ IMG="$( ls ./download/*-arm64-lite.img )"
 #IMG="$( ls ./download/*-armhf-lite.img )"
 
 if [ $# -ne 2 ]; then
-	die "usage: ${0} <dev of SD card> <hostname> [ <static ip> ]"
+	if [ $# -ne 3 ]; then
+		die "usage: ${0} <dev of SD card> <hostname> [ <static ip> ]"
+	fi
 fi
 DEV="$1"
 test ! -e "$DEV" && die "'$DEV' does not exist!" || true
 
 HNAME="$2"
-sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" ./sd/rootfs/etc/hosts
-echo "$HNAME" > ./sd/rootfs/etc/hostname
+sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" ./rootfs/etc/hosts
+echo "$HNAME" > ./rootfs/etc/hostname
 
 if [ $# -eq 3 ]; then
 	IPADDR="$3"
-	sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" ./sd/rootfs/etc/dnsmasq.conf
+	sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" ./rootfs/etc/dnsmasq.conf
 fi
 
 sudo dd if="${IMG}" of="${DEV}" bs=4M conv=fdatasync status=progress
