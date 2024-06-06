@@ -1,2 +1,3 @@
 ---
 # vars file for labgrid
+gpio26_service_path: /etc/systemd/system/gpio26.service

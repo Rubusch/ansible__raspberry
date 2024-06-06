@@ -67,6 +67,29 @@
     dest: /etc/motd
     mode: 0644
 
+- name: labgrid - GPIO26 for DUT power control
+  become: 'yes'
+  block:
+    - name: labgrid - Prepare GPIO26 script
+      copy:
+        src: gpio26.sh
+        dest: /usr/bin/gpio26.sh
+        mode: 755
+
+    - name: labgrid - Prepare GPIO26 systemd service path
+        file:
+          path: "{{ gpio26_service_path | dirname }}"
+          state: directory
+
+    - name: labgrid - Add GPIO26 systemd service script
+        template:
+          src: gpio26.service
+          dest: "{{ gpio26_service_path }}"
+
+    - name: labgrid - Reload systemd services
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
 - name: labgrid - All done!
   debug:
     msg: Labgrid installed
