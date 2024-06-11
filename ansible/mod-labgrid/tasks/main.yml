@@ -76,19 +76,16 @@
         dest: /usr/bin/gpio26.sh
         mode: 755
 
-    - name: labgrid - Prepare GPIO26 systemd service path
-        file:
-          path: "{{ gpio26_service_path | dirname }}"
-          state: directory
-
     - name: labgrid - Add GPIO26 systemd service script
-        template:
-          src: gpio26.service
-          dest: "{{ gpio26_service_path }}"
+      copy:
+        src: gpio26.service
+        dest: "{{ gpio26_service_path }}"
+        owner: root
+        group: root
 
     - name: labgrid - Reload systemd services
-      ansible.builtin.systemd_service:
-        daemon_reload: true
+      systemd:
+        daemon_reload: 'yes'
 
 - name: labgrid - All done!
   debug:
