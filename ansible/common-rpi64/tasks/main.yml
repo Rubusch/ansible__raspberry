@@ -76,7 +76,6 @@
   block:
     - name: rpi/locales - Install locales
       ansible.builtin.apt:
-        upgrade: yes
         update_cache: yes
         cache_valid_time: 3600
         name: locales
@@ -120,7 +119,6 @@
 - name: rpi - Update apt packages
   become: 'yes'
   ansible.builtin.apt:
-    upgrade: 'yes'
     update_cache: 'yes'
     cache_valid_time: 86400 # one day
 
