@@ -1,0 +1,97 @@
+---
+# tasks file for mod-xilinxsrv
+-name: xilinx - Reboot
+  become: 'yes'
+  ansible.builtin.reboot
+
+- name: xilinx - DHCP client for wlan0
+  become: 'yes'
+  shell: |
+    sudo killall dhclient
+    sudo dhclient wlan0
+
+- name: xilinx - apt update
+  become: 'yes'
+  ansible.builtin.apt:
+    upgrade: 'yes'
+    update_cache: 'yes'
+    cache_valid_time: 86400
+
+- name: xilinx - Install packages
+  become: 'yes'
+  ansible.builtin.apt:
+    pkg: "{{ packages }}"
+    state: preset
+    cache_valid_time: 86400
+
+- name: xilinx - Check /x86 exists
+  stat:
+    path: /x86
+  register: x86_exists
+
+- name: xilinx - Check systemd setup exists
+  stat:
+    path: /etc/systemd/systemd/hw_server.service
+  register: systemd_hw_server_exists
+
+- name: xilinx - Setup chroot for qemu
+  block:
+    - name: xilinx - Create folder /x86
+      ansible.builtin.file:
+        path: /x86
+        state: directory
+
+    - name: xilinx - Execute debootstrap on /x86
+      command:
+        cmd: debootstrap --arch amd64 bookworm /x86 http://deb.debian.org/debian
+
+    - name: xilinx - Copy qemu-x86_64-static over to /x86/usr/bin
+      ansible.builtin.copy:
+        src: /usr/bin/qemu-x86_64-static
+        dest: /x86/usr/bin/
+        remote_src: yes
+
+## TODO specific to 2023.1, find a solution
+    - name: xilinx - Copy xilinx lab edition to CTRL board
+      ansible.builtin.copy:
+        src: Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
+        dest: /x86/root/
+
+    - name: xilinx - Install xilinx lab
+      shell: |
+        chroot /x86 qemu-x86_64-static /bin/bash
+        mkdir /xilinx
+        tar xzf  Xilinx_Vivado_Lab_Lin_*.tar.gz
+        cd ./Xilinx
+        ./xsetup --agree XilinxEULA,3rdPartyEULA --batch Install --edition "Vivado Lab Edition (Standalone)" --location /xilinx 
+
+    - name: xilinx - turn off ser2net
+      ansible.builtin.copy:
+      src: ser2net.yaml
+      dest: /etc/ser2net.yaml
+
+  when: x86_exists.stat.exists == False
+  become: 'yes'
+  
+- name: xilinx - Setup systemd job for hw_server
+  block:
+
+    - name: xilinx - Copy hw_server.sh to /usr/bin/hw_server.sh
+      ansible.builtin.copy:
+        src: hw_server.sh
+        dest: /usr/bin/hw_server.sh
+        mode: 755
+
+    - name: xilinx - Copy hw_server.service to /etc/systemd/system/hw_server.service
+      ansible.builtin.copy:
+        src: hw_server.service
+        dest: /etc/systemd/system/hw_server.service
+        owner: root
+        group: root
+
+    - name: xilinx - Systemd reload daemon
+      ansible.builtin.systemd:
+        daemon_reload: 'yes'
+
+  when: systemd_hw_server_exists.stat.exists == False  
+  become: 'yes'

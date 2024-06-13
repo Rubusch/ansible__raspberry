@@ -1,0 +1,7 @@
+---
+# vars file for mod-xilinxsrv
+packages:
+  - binutils
+  - debootstrap
+  - qemu-user-static
+
