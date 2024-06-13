@@ -173,22 +173,18 @@
     name: ModemManager.service
     enabled: false
 
-- name: rpi - Enable systemd lighttpd
-  become: 'yes'
-  ansible.builtin.systemd:
-    name: lighttpd.service
-    enabled: true
-
-- name: rpi - Remove apache2
-  become: 'yes'
-  ansible.builtin.apt:
-    name: apache2
-    purge: yes
-
-## ycm would re-install apache2 and plethora of additional packages
-#- name: Vim install YCM
-#  shell: |
-#    vim-addon-manager install youcompleteme
+## lighttpd is a lightweight replacement for apache2, but often annoys at setup
+#- name: rpi - Enable systemd lighttpd
+#  become: 'yes'
+#  ansible.builtin.systemd:
+#    name: lighttpd.service
+#    enabled: true
+#
+#- name: rpi - Remove apache2
+#  become: 'yes'
+#  ansible.builtin.apt:
+#    name: apache2
+#    purge: yes
 
 - name: rpi - fix timezone to Europe/Zurich
   become: 'yes'
