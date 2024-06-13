@@ -14,9 +14,10 @@
       import_role:
         name: mod-usbsdmux
 
-    - name: Docker setup
+#    - name: Docker setup
+#      import_role:
+#        name: mod-docker
       import_role:
-        name: mod-docker
 
     - name: X11 setup
       import_role:
