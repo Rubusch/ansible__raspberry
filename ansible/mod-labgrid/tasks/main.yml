@@ -1,5 +1,5 @@
 ---
-# tasks file for labgrid provisioning
+# tasks file for labgrid provisioning as labgrid-exporter
 - name: labgrid - Reboot
   become: 'yes'
   ansible.builtin.reboot:
@@ -10,10 +10,24 @@
     sudo killall dhclient
     sudo dhclient wlan0
 
+## check for conditionals
+
 - name: labgrid - Check virtualenv exists
   stat:
-    path: /home/pi/labgrid-venv
+    path: /opt/labgrid-venv
   register: pip_virtualenv_installed
+
+- name: labgrid - Check systemd service exists
+  stat:
+    path: /etc/systemd/system/labgrid-exporter.service
+  register: labgrid_exporter_service_exists
+
+- name: labgrid - Check gpio26 systemd service exists
+  stat:
+    path: /etc/systemd/system/gpio26.service
+  register: gpio26_service_exists
+
+## install system and packages
 
 - name: labgrid - Update and upgrade apt packages
   become: 'yes'
@@ -34,9 +48,16 @@
     - ser2net
     - microcom
 
+- name: labgrid - Change permission for /opt
+  file:
+    dest: "/opt"
+    owner: pi
+    group: pi
+    recurse: 'yes'
+
 - name: labgrid - Create virtualenv
   command:
-    cmd: virtualenv labgrid-venv -p python3
+    cmd: virtualenv /opt/labgrid-venv -p python3
     creates: "labgrid-venv"
   when: pip_virtualenv_installed.stat.exists == False
 
@@ -45,7 +66,7 @@
   pip:
     name: https://github.com/labgrid-project/pyserial/archive/v3.4.0.1.zip#egg=pyserial
     state: forcereinstall
-    virtualenv: /home/pi/labgrid-venv
+    virtualenv: /opt/labgrid-venv
 
 - name: labgrid - Install python packages
   become: 'yes'
@@ -53,22 +74,60 @@
     name:
       - setuptools
       - wheel
-    virtualenv: /home/pi/labgrid-venv
+    virtualenv: /opt/labgrid-venv
 
 - name: labgrid - Clone, install labgrid and install requirements
   pip:
     name: git+https://github.com/labgrid-project/labgrid
-    virtualenv: /home/pi/labgrid-venv
+    virtualenv: /opt/labgrid-venv
 
-- name: labgrid - Setup some message
+## add user pi to groups
+- name: labgrid - Add user to several groups
   become: 'yes'
-  copy:
-    src: motd
-    dest: /etc/motd
-    mode: 0644
+  ansible.builtin.user:
+    name: pi
+    groups: dialout,plugdev,spi,i2c,gpio,disk 
+    append: 'yes'
+
+## systemd setup for labgrid
+
+- name: labgrid - Setup systemd
+  block:
+    - name: labgrid - Copy /etc/tmpfiles.d files
+      ansible.builtin.copy:
+        src: systemd/tmpfiles.d/labgrid.conf
+        dest: /etc/tmpfiles.d
+
+    - name: labgrid - Copy /usr/lib/sysusers.d files
+      ansible.builtin.copy:
+        src: systemd/sysusers.d/labgrid.conf
+        dest: /usr/lib/sysusers.d
+
+    - name: labgrid - Copy systemd service
+      ansible.builtin.copy:
+        src: systemd/labgrid-exporter.service
+        dest: /etc/systemd/system
+
+    - name: labgrid - Copy labgrid-exporter config file
+      ansible.builtin.copy:
+        src: exporter
+        dest: /etc/labgrid
+
+    - name: labgrid - Link to active labgrid-exporter config file
+      ansible.builtin.file:
+        src: /etc/labgrid/config_mini.yml
+        dest: /etc/labgrid/exporter.yaml
+        state: link
+
+    - name: labgrid - Reload systemd services
+      systemd:
+        daemon_reload: 'yes'
+  when: labgrid_exporter_service_exists.stat.exists == False
+  become: 'yes'
+
+## systemd gpio26 for power cycling
 
 - name: labgrid - GPIO26 for DUT power control
-  become: 'yes'
   block:
     - name: labgrid - Prepare GPIO26 script
       copy:
@@ -86,6 +145,17 @@
     - name: labgrid - Reload systemd services
       systemd:
         daemon_reload: 'yes'
+  when: gpio26_service_exists.stat.exists == False
+  become: 'yes'
+
+## message of the day / greeter
+
+- name: labgrid - Setup some message
+  become: 'yes'
+  copy:
+    src: motd
+    dest: /etc/motd
+    mode: 0644
 
 - name: labgrid - All done!
   debug:
