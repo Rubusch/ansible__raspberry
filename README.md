@@ -8,11 +8,11 @@
 https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html
 
 
-## Final Setup
+## Setup
 
-The installation uses a folder *secret* containing the credential files. *secret* is not checked in, and needs to be provided manually as shown below.  
+The installation needs a folder *secret* (not tracked) containing the credential files. *secret* is not checked in, and needs to be provided manually as shown below.  
 
-For my embedded automation controller I use the following setup:  
+For my embedded automation controller the following shows a final setup:  
 
 - **dhcp client** on wlan0 (with configured wpa_supplicant from *secret*), as uplink
 - **dhcp server** (dnsmasq) running on eth0 to manage the DUTs
@@ -21,30 +21,22 @@ For my embedded automation controller I use the following setup:
 - Early output on serial enabled
 - Bluetooth disabled to make console print readable (RPI issue)
 - SSH daemon enabled
-- Locale US_en.UTF-8
+- Locale `US_en.UTF-8`
 - screen using CTRL-b (emacs user)
 - vimrc, emacsrc, mc, bashrc, etc. environment settings
-- Camera (legacy) enabled, setup for motion (useful to remote observe LEDs blinking)
 - ~/.local is a symlink to /usr/local i.e. actually a one-user-system
-- Login: u: pi / p: xdr5XDR%  or auto-login
+- (opt) Xilinx `hw_server` for JTAG over USB to a DUT
+- (opt) Camera (legacy) enabled, setup for motion (useful to remote observe LEDs blinking)
+- (opt) Pengutronix's labgrid-exporter exporting: console to DUT, ssh to CTRL, gpio26 for powercycle
+- (opt) Pengugtronix's usbsdmux in virtualenv
+- (opt) Pyrelayctl and script relctl.py for sainsmart 4-way-relay
 
-Additional Ansible upgrades ("roles") will be  
-
-- Installation of labgrid inside a python virtualenv, to be enabled
-- Installation of pyrelayctl and script relctl.py for sainsmart 4-way-relay
-
+Ideally an ansible "role" (i.e. a module) will drop its usage as README file in /home/pi.  
 
 login: pi / xdr5XDR%  
 
-## TODO
 
-- make apache2 default, and lighttpd a separate additional role
-- quickfix: dnsmasq keeps IP as listen ip, when adjusting IP needs to be mentioned how & where to change, too
-- quickfix: describe how and where to set hostname
-- fix: make target hostname a parameter
-- fix: make target IP a parameter
-
-## Preparation
+## Preparation (first usage)
 
 On host PC  
 
@@ -52,19 +44,21 @@ On host PC
 $ pip3 install --user ansible
 ```
 
-## Download RPI/OS image (64 bit)
+### 1. Download RPI/OS image (64 bit)
 
-Raspi OS image for Raspi 3b [64 bit], plug SD card in reader  
+Raspi OS image for Raspi 4 or 3b [64 bit], plug SD card in reader  
 ```
-$ mkdir ./sd/download
-$ cd ./sd/download
+$ mkdir ./downloads
+$ cd ./downloads
 $ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
 $ unxz 2023-05-03-raspios-bullseye-arm64-lite.img.xz
 ```
 
-## SD card: Prepare Secrets
+In case of using `Vivado hw_server` download and provide the `Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz` file in `downloads`, too
 
-Prepare a folder ``secret`` and provide content as follows  
+### 2. SD card: Prepare Secrets
+
+Prepare the folder ``secret`` and provide content as follows  
 ```
 $ mkdir ./sd/secret
 $ cd ./sd/secret
@@ -84,7 +78,7 @@ $ tree ./secret/ -a
                 └── known_hosts
 ```
 
-Example: interfaces, e.g. could be extended with further network connections to work, and corresponding wpa_supplicant entries.  
+Example: interfaces, e.g. could be extended with further network connections to work, and corresponding `wpa_supplicant` entries.  
 ```
 $ cat ./secret/etc/network/interfaces
     # interfaces(5) file used by ifup(8) and ifdown(8)
@@ -99,7 +93,7 @@ $ cat ./secret/etc/network/interfaces
 
     ## dnsmasq as dhcp own server on eth
     iface eth0 inet static
-    address 10.1.10.203
+    address 10.1.10.33
     netmask 255.0.0.0
 
     auto wlan0
@@ -120,7 +114,7 @@ $ cat ./secret/etc/network/interfaces
     #    netmask 255.255.255.0
 ```
 
-## SD card: Flash the minimal Setup
+### 3. SD card: Flash the minimal Setup
 
 Plug card into card reader. In case configure ./setup.sh to use the 64-bit or the 32-bit Pi OS image.   
 ```
@@ -135,14 +129,18 @@ $
 ```
 NB: If there is no `READY.` the SD card setup failed.  
 
-## Raspberry: Prepare the Ansible setup
+### 4. Prepare the Ansible setup
 
 - Configure the expected target IP in `./ansible/hosts`. For example, if the RPI will show up on IP **10.1.10.203 (static)**.
 - Configure the ssh key to use in `./ansible.cfg`, under `private_key_file`.
 
-## Raspberry: Automized Setup
+In case also configure
+- The files in `./ansible/mod-xilinxsrv/files/` according to the setup
+- The files in `./ansible/mod-labgrid/files/` according to the setup, i.e. hostname, `labgrid-coordinator` IP, CTRL IP, etc.
 
-Plug the card into the RPI. Connect ethernet connection to the RPI. Verify the board is up and connection works out.  
+### 5. Raspberry: Automized Setup
+
+Now Plug the card into the RPI. Connect ethernet to the RPI. Power the RPI. Verify the board is up and connection works out.  
 ```
 $ cd ./ansible
 $ ansible all -m ping
@@ -164,7 +162,6 @@ $ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
     # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
     # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
     # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
-
 ```
 
 Execute ansible provisioning, login a user eligible for sudo rights  
@@ -186,12 +183,33 @@ $ ssh pi@10.1.10.203
     login: pi
     password: xdr5XDR%
     (but should use certificate!)
+```
 
+#### When working with screen
+
+```
 $ screen
 
 <open up some sessions>
+```
 
-$ source ./labgrid-venv/bin/activate
+#### When working with Pengutronix labgrid
+
+```
+$ sudo systemctl status labgrid-exporter
+```
+
+Modify `/etc/labgrid/exporter.yaml` and `/etc/systemd/system/labgrid-exporter.service`, then
+```
+$ sudo systemctl start labgrid-exporter
+```
+
+
+#### When working with Pengutronix usbsdmux / labgrid
+
+For the specific setting use `labgrid-suggest`...
+```
+$ source /opt/labgrid-venv/bin/activate
 (labview-venv)$ ls /dev/usb-sd-mux/
     id-000000001444
 
@@ -218,22 +236,56 @@ switchover
 (labgrid-venv)$ usbsdmux /dev/usb-sd-mux/id-000000001444 dut
 ```
 
+#### When working with pyrelayctl
+
 power the device  
-TODO alternative GPIO triggered relay  
 ```
 (labgrid-venv)$ relctl.py -d0 -t1
 ```
+
+#### When using GPIO26 and any relay
+
+power the device
+```
+$ sudo systemctl start gpio26
+```
+
+unpower the device
+```
+$ sudo systemctl stop gpio26
+```
+
+In case of labgrid this is to be forwarded, then `lc power on` (if `labgrid-client` aliased to `lc`) powers the device.
+
+
+#### When working with serial connection
 
 in another screen session e.g. open a terminal  
 ```
 $ tio /dev/ttyUSB1
 ```
 
+In case of labgrid this is to be forwareded, then `lc con` should provide the shell to the DUT.
+
+
+#### When working with xvcpi server
+
 in another screen session e.g. run xvcpi server  
 ```
 $ cd ./github__xvcpi
 $ sudo xvcpi -v &
 ```
+
+#### When working with Xilinx `hw_server` (JTAG server)
+
+```
+$ sudo systemctl start hw_server
+```
+
+NB: the server is highly (more or less) dependent on the installed version of Xilinx Lab Edition, here the setup is provided for 2022.1, 2023.1 and 2024.1. In this case the specific
+`Xilinx Vivado Lab Edition` for Linux has to be downloaded and placed into the `downloads` folder. Then `./ansible/mod-xilinxsrv/tasks/*` needs to be adjusted accordingly before
+ansible installation.
+
 
 
 ## Development
@@ -257,11 +309,12 @@ $ make
 ```
 
 
-## TODOs
+## TODO
 
-- Remove apache2 reliably, since we use lighttpd (`systemctl status` is degraded because of apache2)
-- Fix ansible provisioning needs restarts (404 errors, and similar)
+- quickfix: dnsmasq keeps IP as listen ip, when adjusting IP needs to be mentioned how & where to change, too
+- quickfix: describe how and where to set hostname
 - Fix xvcpi JTAG forwareder not working
+- Provide README_<ansible mod>.md for each optionally selected ansible module to be placed into /home/pi
 
 
 ## Issues
