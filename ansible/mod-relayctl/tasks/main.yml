@@ -7,21 +7,21 @@
 - name: DHCP client for wlan0
   become: 'yes'
   shell: |
-    sudo killall dhclient
-    sudo dhclient wlan0
+    killall dhclient
+    dhclient wlan0
 
-- name: relayctl - Check virtualenv exists
+- name: Check virtualenv exists
   stat:
-    path: /home/pi/labgrid-venv
+    path: /opt/labgrid-venv
   register: pip_virtualenv_installed
 
-- name: relayctl - Update and upgrade apt packages
+- name: Update and upgrade apt packages
   become: 'yes'
   ansible.builtin.apt:
     upgrade: yes
     update_cache: yes
 
-- name: relayctl - Install packages
+- name: Install packages
   become: 'yes'
   ansible.builtin.apt:
     pkg: "{{ item }}"
@@ -32,26 +32,26 @@
     - python3-setuptools
     - python3-usb  ## implies libusb-1.0-0
 
-- name: relayctl - Install python packages
+- name: Install python packages
   become: 'yes'
   pip:
     name:
       - pyusb
-    virtualenv: /home/pi/labgrid-venv
+    virtualenv: /opt/labgrid-venv
   when: pip_virtualenv_installed.stat.exists == True
 
-- name: relayctl - Install pyrelayctl
+- name: Install pyrelayctl
   pip:
     name: git+https://github.com/xypron/pyrelayctl.git
-    virtualenv: /home/pi/labgrid-venv
+    virtualenv: /opt/labgrid-venv
   when: pip_virtualenv_installed.stat.exists == True
 
-- name: relayctl - Install pyrelayctl
+- name: Install pyrelayctl
   pip:
     name: git+https://github.com/xypron/pyrelayctl.git
   when: pip_virtualenv_installed.stat.exists == False
 
-- name: relayctl - Setup udev rule
+- name: Setup udev rule
   become: 'yes'
   copy:
     src: relayctl.rules
@@ -60,15 +60,15 @@
     group: pi
     mode: 0644
 
-- name: relayctl - Setup relctl tool
+- name: Setup relctl tool
   copy:
     src: relctl.py
-    dest: /home/pi/labgrid-venv/bin
+    dest: /opt/labgrid-venv/bin
     owner: pi
     group: pi
     mode: 0755
 
-- name: relayctl - Reboot
+- name: Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
@@ -78,6 +78,6 @@
     sudo killall dhclient
     sudo dhclient wlan0
 
-- name: relayctl - All done!
+- name: All done!
   debug:
-    msg: Pyrelayctl successfully installed
+    msg: PyRelayctl successfully installed

@@ -1,6 +1,6 @@
 ---
 # tasks file for xvcpi
-- name: xvcpi - Reboot
+- name: Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
@@ -10,14 +10,14 @@
     sudo killall dhclient
     sudo dhclient wlan0
 
-- name: xvcpi - Install needed packages
+- name: Install needed packages
   become: 'yes'
   block:
-    - name: xvcpi - Update and upgrade apt packages
+    - name: Update and upgrade apt packages
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: xvcpi - Install packages
+    - name: Install packages
       ansible.builtin.apt:
         pkg: "{{ item }}"
       with_items:
@@ -25,39 +25,39 @@
         - linux-source
 
   ## https://github.com/Xilinx/XilinxVirtualCable.git
-- name: xvcpi - Clone XilinxVirtualCable
+- name: Clone XilinxVirtualCable
   ansible.builtin.git:
     repo: 'https://github.com/Xilinx/XilinxVirtualCable.git'
     dest: /home/pi/github__XilinxVirtualCable
     update: no
 
   ## https://github.com/derekmulcahy/xvcpi.git
-- name: xvcpi - Clone xvcpi (Xilinx Virtual Cable on Pi)
+- name: Clone xvcpi (Xilinx Virtual Cable on Pi)
   ansible.builtin.git:
     repo: 'https://github.com/derekmulcahy/xvcpi.git'
     dest: /home/pi/github__xvcpi
     update: no
 
-- name: xvcpi - prepare sense-current.py
+- name: prepare sense-current.py
   become: 'yes'
   pip:
     name:
       - setuptools
       - wheel
       - pi-ina219
-    virtualenv: /home/pi/labgrid-venv
+    virtualenv: /opt/labgrid-venv
 
-- name: xvcpi - Setup sense-current.py
+- name: Setup sense-current.py
   become: 'yes'
   copy:
     src: sense-current.py
-    dest: /home/pi/labgrid-venv/bin/sense-current.py
+    dest: /opt/labgrid-venv/bin/sense-current.py
     owner: pi
     group: pi
     mode: 0755
 
 ## TODO usage, config, etc. pending
 
-- name: xvcpi - All done!
+- name: All done!
   debug:
     msg: Packages have been successfully installed
