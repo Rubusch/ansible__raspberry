@@ -4,4 +4,15 @@ packages:
   - binutils
   - debootstrap
   - qemu-user-static
-
+  - ncurses-dev
+  - libncurses5
+  - libncurses5-dev
+  - libncursesw5-dev
+  - libtinfo5
+#  - libncurses5:i386
+  - libx11-6
+  - libxext6
+  - libxtst6
+  - libgtk2.0-0
+  - libglib2.0-0
+  - libstdc++6

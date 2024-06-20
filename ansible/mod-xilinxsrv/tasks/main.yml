@@ -1,97 +1,201 @@
 ---
 # tasks file for mod-xilinxsrv
--name: xilinx - Reboot
+- name: Reboot
   become: 'yes'
-  ansible.builtin.reboot
+  ansible.builtin.reboot:
 
-- name: xilinx - DHCP client for wlan0
+- name: DHCP client for wlan0
   become: 'yes'
   shell: |
-    sudo killall dhclient
-    sudo dhclient wlan0
+    killall dhclient
+    dhclient wlan0
 
-- name: xilinx - apt update
+- name: Apt update
   become: 'yes'
   ansible.builtin.apt:
     upgrade: 'yes'
     update_cache: 'yes'
     cache_valid_time: 86400
 
-- name: xilinx - Install packages
+- name: Install packages
   become: 'yes'
   ansible.builtin.apt:
     pkg: "{{ packages }}"
-    state: preset
+    state: present
     cache_valid_time: 86400
 
-- name: xilinx - Check /x86 exists
+- name: Check /x86 exists
   stat:
     path: /x86
   register: x86_exists
 
-- name: xilinx - Check systemd setup exists
-  stat:
-    path: /etc/systemd/systemd/hw_server.service
-  register: systemd_hw_server_exists
-
-- name: xilinx - Setup chroot for qemu
+- name: Setup chroot for qemu
   block:
-    - name: xilinx - Create folder /x86
+
+    - name: Create folder /x86
       ansible.builtin.file:
         path: /x86
         state: directory
 
-    - name: xilinx - Execute debootstrap on /x86
+    - name: Execute debootstrap on /x86
       command:
         cmd: debootstrap --arch amd64 bookworm /x86 http://deb.debian.org/debian
 
-    - name: xilinx - Copy qemu-x86_64-static over to /x86/usr/bin
+    - name: Copy qemu-x86_64-static over to /x86/usr/bin
       ansible.builtin.copy:
         src: /usr/bin/qemu-x86_64-static
         dest: /x86/usr/bin/
         remote_src: yes
+        mode: '0755'
 
-## TODO specific to 2023.1, find a solution
-    - name: xilinx - Copy xilinx lab edition to CTRL board
-      ansible.builtin.copy:
-        src: Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
-        dest: /x86/root/
-
-    - name: xilinx - Install xilinx lab
+    - name: Chroot package update
       shell: |
-        chroot /x86 qemu-x86_64-static /bin/bash
-        mkdir /xilinx
-        tar xzf  Xilinx_Vivado_Lab_Lin_*.tar.gz
-        cd ./Xilinx
-        ./xsetup --agree XilinxEULA,3rdPartyEULA --batch Install --edition "Vivado Lab Edition (Standalone)" --location /xilinx 
+        chroot /x86 qemu-x86_64-static /bin/bash -c "apt update"
 
-    - name: xilinx - turn off ser2net
+    - name: Chroot package install
+      shell: |
+        chroot /x86 qemu-x86_64-static /bin/bash -c "apt install -y ncurses-dev libncurses5 libncurses5-dev libncursesw5-dev libtinfo5 libx11-6 libxext6 libxtst6 libgtk2.0-0 libglib2.0-0 libstdc++6"
+
+    - name: Create folder /x86/xilinx
+      ansible.builtin.file:
+        path: /x86/xilinx
+        state: directory
+
+    - name: Turn off ser2net
       ansible.builtin.copy:
-      src: ser2net.yaml
-      dest: /etc/ser2net.yaml
-
+        src: ser2net.yaml
+        dest: /etc/ser2net.yaml
+ 
   when: x86_exists.stat.exists == False
   become: 'yes'
-  
-- name: xilinx - Setup systemd job for hw_server
+
+## Note the following will execute several (or all) Xilinx Vivado Lab editions
+
+
+- name: Check Xilinx Lab Edition
+  stat:
+    path: /home/pi/README_xilinxsrv.md
+  register: systemd_hw_server_exists
+
+- name: Xilinx Vivado Lab Edition
   block:
 
-    - name: xilinx - Copy hw_server.sh to /usr/bin/hw_server.sh
-      ansible.builtin.copy:
-        src: hw_server.sh
-        dest: /usr/bin/hw_server.sh
-        mode: 755
+#     - name: Copy Xilinx Lab edition to CTRL board
+#       ansible.builtin.copy:
+#         src: downloads/Xilinx_Vivado_Lab_Lin_2022.1_0420_0327.tar.gz
+#         dest: /x86/root/
+# 
+#     - name: Copy Xilinx Lab config
+#       copy:
+#         src: install_config_22.1.txt
+#         dest: /x86/root/install_config.txt
+# 
+#     - name: Unpack Xilinx Vivado Lab
+#       shell: |
+#         cd /x86/root
+#         tar xzf Xilinx_Vivado_Lab_Lin_*.tar.gz
+# 
+#     - name: Install Xilinx Lab
+#       shell: |
+#         chroot /x86 qemu-x86_64-static /bin/bash -c "/root/Xilinx_Vivado_Lab_Lin_2022.1*/xsetup -a XilinxEULA,3rdPartyEULA -b Install -c /root/install_config.txt -l /xilinx &> xilinx_install.log"
+# 
+#     - name: Remove Xilinx Lab tarball
+#       shell: |
+#         rm -f /x86/root/Xilinx_Vivado_Lab_Lin_2022.1_0420_0327.tar.gz
+# 
+#     - name: Copy hw_server.sh
+#       ansible.builtin.copy:
+#         src: hw_server_22.1.sh
+#         dest: /usr/bin/hw_server.sh
+#         mode: '0755'
 
-    - name: xilinx - Copy hw_server.service to /etc/systemd/system/hw_server.service
+
+## Xilinx Lab Edition 2023.1
+
+    - name: Copy Xilinx Lab Edition to CTRL board
+      copy:
+        src: downloads/Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
+        dest: /x86/root/
+
+    - name: Copy Xilinx Lab config
+      copy:
+        src: install_config_23.1.txt
+        dest: /x86/root/install_config.txt
+
+    - name: Unpack Xilinx Vivado Lab
+      shell: |
+        cd /x86/root
+        tar xzf Xilinx_Vivado_Lab_Lin_*.tar.gz
+
+    ## find logs at: /x86/root/.Xilinx/xinstall/xinstall-*.log
+    - name: Install Xilinx Lab
+      shell: |
+        chroot /x86 qemu-x86_64-static /bin/bash -c "/root/Xilinx_Vivado_Lab_Lin_2023.1*/xsetup -a XilinxEULA,3rdPartyEULA -b Install -c /root/install_config.txt -l /xilinx &> xilinx_install.log"
+
+    - name: Remove Xilinx Lab tarball
+      shell: |
+        rm -f /x86/root/Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
+
+    - name: Copy hw_server.sh
+      ansible.builtin.copy:
+        src: hw_server_23.1.sh
+        dest: /usr/bin/hw_server.sh
+        mode: '0755'
+
+
+## Xilinx Lab Edition 2024.1
+
+#     - name: Copy Xilinx Lab edition to CTRL board
+#       ansible.builtin.copy:
+#         src: downloads/Vivado_Lab_Lin_2024.1_0522_2023.tar.gz
+#         dest: /x86/root/
+#
+#      - name: Copy Xilinx Lab config
+#       copy:
+#         src: install_config_24.1.txt
+#         dest: /x86/root/install_config.txt
+# 
+#     - name: Unpack Xilinx Vivado Lab
+#       shell: |
+#         cd /x86/root
+#         tar xzf Xilinx_Vivado_Lab_Lin_*.tar.gz
+# 
+#     - name: Install Xilinx Lab
+#       shell: |
+#         chroot /x86 qemu-x86_64-static /bin/bash -c "/root/Xilinx_Vivado_Lab_Lin_2024.1*/xsetup -a XilinxEULA,3rdPartyEULA -b Install -c /root/install_config.txt -l /xilinx &> xilinx_install.log"
+#
+#     - name: Remove Xilinx Lab tarball
+#       shell: |
+#         rm -f /x86/root/Vivado_Lab_Lin_2024.1_0522_2023.tar.gz
+# 
+#     - name: Copy hw_server.sh
+#       ansible.builtin.copy:
+#         src: hw_server_24.1.sh
+#         dest: /usr/bin/hw_server.sh
+#         mode: '0755'
+ 
+    - name: Copy hw_server.service
       ansible.builtin.copy:
         src: hw_server.service
         dest: /etc/systemd/system/hw_server.service
         owner: root
         group: root
 
-    - name: xilinx - Systemd reload daemon
+    - name: Systemd reload daemon
       ansible.builtin.systemd:
         daemon_reload: 'yes'
 
+    - name: Readme
+      copy:
+        src: README_xilinxsrv.md
+        dest: /home/pi/
+        owner: pi
+        group: pi
+        mode: '0644'
+
   when: systemd_hw_server_exists.stat.exists == False  
   become: 'yes'
+
+- name: All done!
+  debug:
+    msg: Xilinx Lab Edition / hw_server installed
