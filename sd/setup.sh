@@ -4,7 +4,7 @@
 ## e.g.
 ## $ ./setup.sh /dev/sdh UNIT01 10.1.10.33
 ##
-## - provide rootfs secrets under "secrets"
+## - provide rootfs secrets and modifyable data under "secret"
 ## - try to make sure you have sudo permissions
 
 die()
@@ -19,21 +19,18 @@ IMG="$( ls ../downloads/*-arm64-lite.img )"
 ## 32-bit pi OS
 #IMG="$( ls ../downloads/*-armhf-lite.img )"
 
-if [ $# -ne 2 ]; then
-	if [ $# -ne 3 ]; then
-		die "usage: ${0} <dev of SD card> <hostname> [ <static ip> ]"
-	fi
+if [ $# -lt 1 ]; then
+	die "usage: ${0} <dev of SD card> [ <hostname> [ <static ip> ]]"
 fi
 DEV="$1"
 test ! -e "$DEV" && die "'$DEV' does not exist!" || true
 
-HNAME="$2"
-sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" ./rootfs/etc/hosts
-echo "$HNAME" > ./rootfs/etc/hostname
+if [ $# -gt 1 ]; then
+	HNAME="$2"
+fi
 
 if [ $# -eq 3 ]; then
 	IPADDR="$3"
-	sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" ./rootfs/etc/dnsmasq.conf
 fi
 
 sudo dd if="$IMG" of="$DEV" bs=4M conv=fdatasync status=progress
@@ -53,6 +50,17 @@ sudo cp -arfv ./rootfs/* "$ROOTFS/"
 
 ## (1/2) secret: /etc configs
 sudo cp -arfv ./secret/etc "$ROOTFS/"
+## adjustments to hostname and ip are optional
+## since they are modifyable they are provided by "secret"
+## if set, we overwrite the entries in the files accordingly
+sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" ./secret/etc/hosts
+echo "$HNAME" > ./secret/etc/hostname
+if [ IPADDR != "" ]; then
+	if [ -f ./secret/etc/dnsmasq.conf ]; then
+		sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" ./secret/etc/dnsmasq.conf
+	fi
+	sed -i "/ *address /s/.*/    address ${IPADDR}/" ./secret/etc/network/interfaces
+fi
 
 ## (2/2) secret: ~/ configs
 sudo cp -arfv ./secret/home/pi "$ROOTFS/home/"

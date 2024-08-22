@@ -61,11 +61,12 @@ In case of using `Vivado hw_server` download and provide the `Xilinx_Vivado_Lab_
 Prepare the folder ``secret`` and provide content as follows  
 ```
 $ mkdir ./sd/secret
-$ cd ./sd/secret
-...
-$ tree ./secret/ -a
+$ tree ./sd/secret/ -a
 ./secret/
     ├── etc
+    │   ├── dnsmasq.conf
+    │   ├── hostname
+    │   ├── hosts
     │   ├── network
     │   │   └── interfaces
     │   └── wpa_supplicant
@@ -77,6 +78,7 @@ $ tree ./secret/ -a
                 ├── id_ed25519
                 └── known_hosts
 ```
+NB: /etc/dnsmasq.conf is optional
 
 Example: interfaces, e.g. could be extended with further network connections to work, and corresponding `wpa_supplicant` entries.  
 ```
@@ -124,7 +126,7 @@ $ lsblk
 $ cd ./sd
 $ ./setup.sh /dev/sdi UNIT02 10.1.10.33
     ...
-	READY.
+    READY.
 $
 ```
 NB: If there is no `READY.` the SD card setup failed.  
@@ -140,6 +142,12 @@ In case also configure
 - Set a symlink in `./ansible/mod-xilinxsrv/files/downloads` to `../../../downloads` (where the xilnx lab edition needs to be placed)
 - The file `./ansible/mod-xilinxsrv/tasks/main.yml`, uncomment the section of the specific `hw_server` edition and provide xilinx.tar.xz file in downloads
 - The files in `./ansible/mod-labgrid/files/` according to the setup, i.e. hostname, `labgrid-coordinator` IP, CTRL IP, etc.
+or execute the following to find places to adjust to the current setup (ip and hostname)
+```
+$ grep '10\.1\.10' -HIirn ./ansible
+$ grep 'unit0' -HIirn ./ansible
+```
+TODO: improve this
 
 ### 5. Raspberry: Automized Setup
 

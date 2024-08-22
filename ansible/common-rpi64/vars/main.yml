@@ -92,7 +92,7 @@ packages:
   - xxd
   - tftp
   - tftpd-hpa
-  - dnsmasq
+#  - dnsmasq
   - cmake
   - libftdi1-dev
   - zstd
