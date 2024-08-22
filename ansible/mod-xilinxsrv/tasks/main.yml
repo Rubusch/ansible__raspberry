@@ -111,68 +111,68 @@
 
 
 ## Xilinx Lab Edition 2023.1
-
-    - name: Copy Xilinx Lab Edition to CTRL board
-      copy:
-        src: downloads/Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
-        dest: /x86/root/
-
-    - name: Copy Xilinx Lab config
-      copy:
-        src: install_config_23.1.txt
-        dest: /x86/root/install_config.txt
-
-    - name: Unpack Xilinx Vivado Lab
-      shell: |
-        cd /x86/root
-        tar xzf Xilinx_Vivado_Lab_Lin_*.tar.gz
-
-    ## find logs at: /x86/root/.Xilinx/xinstall/xinstall-*.log
-    - name: Install Xilinx Lab
-      shell: |
-        chroot /x86 qemu-x86_64-static /bin/bash -c "/root/Xilinx_Vivado_Lab_Lin_2023.1*/xsetup -a XilinxEULA,3rdPartyEULA -b Install -c /root/install_config.txt -l /xilinx &> xilinx_install.log"
-
-    - name: Remove Xilinx Lab tarball
-      shell: |
-        rm -f /x86/root/Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
-
-    - name: Copy hw_server.sh
-      ansible.builtin.copy:
-        src: hw_server_23.1.sh
-        dest: /usr/bin/hw_server.sh
-        mode: '0755'
+#
+#    - name: Copy Xilinx Lab Edition to CTRL board
+#      copy:
+#        src: downloads/Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
+#        dest: /x86/root/
+#
+#    - name: Copy Xilinx Lab config
+#      copy:
+#        src: install_config_23.1.txt
+#        dest: /x86/root/install_config.txt
+#
+#    - name: Unpack Xilinx Vivado Lab
+#      shell: |
+#        cd /x86/root
+#        tar xzf Xilinx_Vivado_Lab_Lin_*.tar.gz
+#
+#    ## find logs at: /x86/root/.Xilinx/xinstall/xinstall-*.log
+#    - name: Install Xilinx Lab
+#      shell: |
+#        chroot /x86 qemu-x86_64-static /bin/bash -c "/root/Xilinx_Vivado_Lab_Lin_2023.1*/xsetup -a XilinxEULA,3rdPartyEULA -b Install -c /root/install_config.txt -l /xilinx &> xilinx_install.log"
+#
+#    - name: Remove Xilinx Lab tarball
+#      shell: |
+#        rm -f /x86/root/Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz
+#
+#    - name: Copy hw_server.sh
+#      ansible.builtin.copy:
+#        src: hw_server_23.1.sh
+#        dest: /usr/bin/hw_server.sh
+#        mode: '0755'
 
 
 ## Xilinx Lab Edition 2024.1
 
-#     - name: Copy Xilinx Lab edition to CTRL board
-#       ansible.builtin.copy:
-#         src: downloads/Vivado_Lab_Lin_2024.1_0522_2023.tar.gz
-#         dest: /x86/root/
-#
-#      - name: Copy Xilinx Lab config
-#       copy:
-#         src: install_config_24.1.txt
-#         dest: /x86/root/install_config.txt
-# 
-#     - name: Unpack Xilinx Vivado Lab
-#       shell: |
-#         cd /x86/root
-#         tar xzf Xilinx_Vivado_Lab_Lin_*.tar.gz
-# 
-#     - name: Install Xilinx Lab
-#       shell: |
-#         chroot /x86 qemu-x86_64-static /bin/bash -c "/root/Xilinx_Vivado_Lab_Lin_2024.1*/xsetup -a XilinxEULA,3rdPartyEULA -b Install -c /root/install_config.txt -l /xilinx &> xilinx_install.log"
-#
-#     - name: Remove Xilinx Lab tarball
-#       shell: |
-#         rm -f /x86/root/Vivado_Lab_Lin_2024.1_0522_2023.tar.gz
-# 
-#     - name: Copy hw_server.sh
-#       ansible.builtin.copy:
-#         src: hw_server_24.1.sh
-#         dest: /usr/bin/hw_server.sh
-#         mode: '0755'
+    - name: Copy Vivado Lab edition to CTRL board
+      ansible.builtin.copy:
+        src: downloads/Vivado_Lab_Lin_2024.1_0522_2023.tar.gz
+        dest: /x86/root/
+
+    - name: Copy Vivado Lab config
+      copy:
+        src: install_config_24.1.txt
+        dest: /x86/root/install_config.txt
+
+    - name: Unpack Vivado Lab
+      shell: |
+        cd /x86/root
+        tar xzf Vivado_Lab_Lin_*.tar.gz
+
+    - name: Install Vivado Lab
+      shell: |
+        chroot /x86 qemu-x86_64-static /bin/bash -c "/root/Vivado_Lab_Lin_2024.1*/xsetup -a XilinxEULA,3rdPartyEULA -b Install -c /root/install_config.txt -l /xilinx &> vivado_install.log"
+
+    - name: Remove Vivado Lab tarball
+      shell: |
+        rm -f /x86/root/Vivado_Lab_Lin_*.tar.gz
+
+    - name: Copy hw_server.sh
+      ansible.builtin.copy:
+        src: hw_server_24.1.sh
+        dest: /usr/bin/hw_server.sh
+        mode: '0755'
  
     - name: Copy hw_server.service
       ansible.builtin.copy:
@@ -198,4 +198,4 @@
 
 - name: All done!
   debug:
-    msg: Xilinx Lab Edition / hw_server installed
+    msg: Vivado Lab Edition / hw_server installed
