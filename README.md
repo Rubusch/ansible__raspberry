@@ -50,8 +50,8 @@ Raspi OS image for Raspi 4 or 3b [64 bit], plug SD card in reader
 ```
 $ mkdir ./downloads
 $ cd ./downloads
-$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
-$ unxz 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2024-07-04/2024-07-04-raspios-bookworm-arm64-lite.img.xz
+$ unxz 2024-07-04-raspios-bookworm-arm64-lite.img.xz
 ```
 
 In case of using `Vivado hw_server` download and provide the `Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz` file in `downloads`, too
