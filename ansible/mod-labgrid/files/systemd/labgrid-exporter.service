@@ -9,7 +9,7 @@ Wants=network-online.target
 Environment="PYTHONUNBUFFERED=1"
 # Should contain LG_CROSSBAR configuration
 EnvironmentFile=-/etc/environment
-ExecStart=/opt/labgrid-venv/bin/labgrid-exporter --hostname 'pi@ctrl01' -x 'ws://10.1.10.1:20408/ws' /etc/labgrid/exporter.yaml
+ExecStart=/opt/labgrid-venv/bin/labgrid-exporter --hostname 'pi@UNIT05' -x 'ws://10.1.10.1:20408/ws' /etc/labgrid/exporter.yaml
 Restart=on-failure
 RestartForceExitStatus=100
 RestartSec=30

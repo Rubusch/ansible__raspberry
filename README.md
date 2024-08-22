@@ -122,7 +122,7 @@ $ lsblk
    -> /dev/sdi
 
 $ cd ./sd
-$ ./setup.sh /dev/sdi CTRL02 10.1.10.33
+$ ./setup.sh /dev/sdi UNIT02 10.1.10.33
     ...
 	READY.
 $

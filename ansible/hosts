@@ -1,8 +1,7 @@
 [raspi]
-10.1.10.200
+10.1.10.81
 
 [raspi:vars]
 ansible_connection=ssh
 ansible_user=pi
 #ansible_ssh_pass=xdr5XDR%
-
