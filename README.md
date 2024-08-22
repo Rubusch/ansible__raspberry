@@ -133,9 +133,12 @@ NB: If there is no `READY.` the SD card setup failed.
 
 - Configure the expected target IP in `./ansible/hosts`. For example, if the RPI will show up on IP **10.1.10.203 (static)**.
 - Configure the ssh key to use in `./ansible.cfg`, under `private_key_file`.
+- Configure the `rpi-conf.yml` to select which "roles" (modules) shall be added
 
 In case also configure
-- The files in `./ansible/mod-xilinxsrv/files/` according to the setup
+- The files in `./ansible/mod-xilinxsrv/files/` according to the setup, e.g. download and place xilinx lab edition in downloads
+- Set a symlink in `./ansible/mod-xilinxsrv/files/downloads` to `../../../downloads` (where the xilnx lab edition needs to be placed)
+- The file `./ansible/mod-xilinxsrv/tasks/main.yml`, uncomment the section of the specific `hw_server` edition and provide xilinx.tar.xz file in downloads
 - The files in `./ansible/mod-labgrid/files/` according to the setup, i.e. hostname, `labgrid-coordinator` IP, CTRL IP, etc.
 
 ### 5. Raspberry: Automized Setup
