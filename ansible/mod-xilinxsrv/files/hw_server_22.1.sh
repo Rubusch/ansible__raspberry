@@ -2,7 +2,7 @@
 #
 # start: start qemu hw_server
 # stop: stop qemu hw_server
-SERVERIP="10.1.10.65"
+SERVERIP="10.1.10.113"
 XILINX_VERSION="2022.1"
 
 ARG=$1

@@ -10,7 +10,7 @@ lab:
     ifname: "eth0"
 
   NetworkService:   # net to DUT
-    address: 10.1.10.17
+    address: 10.1.10.113
     username: root
 
   USBSDMuxDevice:
