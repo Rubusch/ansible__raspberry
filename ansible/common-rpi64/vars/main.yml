@@ -97,4 +97,5 @@ packages:
   - libftdi1-dev
   - zstd
   - gpiod
+  - sshfs
 #  - lighttpd
