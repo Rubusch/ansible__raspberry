@@ -99,3 +99,4 @@ packages:
   - gpiod
   - sshfs
 #  - lighttpd
+  - iperf3
