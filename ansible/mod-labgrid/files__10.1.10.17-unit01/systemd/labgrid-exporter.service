@@ -1,0 +1,20 @@
+## specific to a labgrid-coordinator on 10.1.10.1
+[Unit]
+Description=Labgrid Exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment="PYTHONUNBUFFERED=1"
+# Should contain LG_CROSSBAR configuration
+EnvironmentFile=-/etc/environment
+ExecStart=/opt/labgrid-venv/bin/labgrid-exporter --hostname 'pi@unit01' -x 'ws://10.1.10.1:20408/ws' /etc/labgrid/exporter.yaml
+Restart=on-failure
+RestartForceExitStatus=100
+RestartSec=30
+DynamicUser=yes
+# Adjust to your distribution (most often "dialout" or "tty")
+SupplementaryGroups=dialout plugdev input netdev spi i2c gpio
+
+[Install]
+WantedBy=multi-user.target
