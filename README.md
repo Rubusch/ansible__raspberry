@@ -58,7 +58,7 @@ In case of using `Vivado hw_server` download and provide the `Xilinx_Vivado_Lab_
 
 ### 2. SD card: Prepare Secrets
 
-Prepare the folder ``secret`` and provide content as follows  
+Prepare the folder ``secret`` and provide content as follows. If several are prepared, usually link the correct "secret" folder to this possition.  
 ```
 $ mkdir ./sd/secret
 $ tree ./sd/secret/ -a
@@ -124,7 +124,7 @@ $ lsblk
    -> /dev/sdi
 
 $ cd ./sd
-$ ./setup.sh /dev/sdi UNIT02 10.1.10.33
+$ ./setup.sh /dev/sdi unit02 10.1.10.33
     ...
     READY.
 $
@@ -138,11 +138,12 @@ NB: If there is no `READY.` the SD card setup failed.
 - Configure the `rpi-conf.yml` to select which "roles" (modules) shall be added
 
 In case also configure
-- The files in `./ansible/mod-xilinxsrv/files/` according to the setup, e.g. download and place xilinx lab edition in downloads
+- The files in `./ansible/mod-xilinxsrv/files/` according to the setup, e.g. download and place xilinx lab edition in downloads (symlinked)
 - Set a symlink in `./ansible/mod-xilinxsrv/files/downloads` to `../../../downloads` (where the xilnx lab edition needs to be placed)
 - The file `./ansible/mod-xilinxsrv/tasks/main.yml`, uncomment the section of the specific `hw_server` edition and provide xilinx.tar.xz file in downloads
-- The files in `./ansible/mod-labgrid/files/` according to the setup, i.e. hostname, `labgrid-coordinator` IP, CTRL IP, etc.
-or execute the following to find places to adjust to the current setup (ip and hostname)
+- The files in `./ansible/mod-labgrid/files/` according to the setup, i.e. hostname, `labgrid-coordinator` IP, CTRL IP, etc. (symlinked)
+
+double-check, execute the following to find places to adjust to the current setup (ip and hostname)
 ```
 $ grep '10\.1\.10' -HIirn ./ansible
 $ grep 'unit0' -HIirn ./ansible
@@ -151,7 +152,19 @@ TODO: improve this
 
 ### 5. Raspberry: Automized Setup
 
-Now Plug the card into the RPI. Connect ethernet to the RPI. Power the RPI. Verify the board is up and connection works out.  
+Now Plug the card into the RPI. Connect ethernet to the RPI. Power the RPI.  
+(Optionally) update ssh ``known_hosts``  
+```
+$ ssh-keygen -f ~/.ssh/known_hosts -R "10.1.10.203"
+$ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+```
+
+Verify the board is up and connection works out.  
 ```
 $ cd ./ansible
 $ ansible all -m ping
@@ -162,17 +175,6 @@ $ ansible all -m ping
         "changed": false,
         "ping": "pong"
     }
-```
-
-(Optionally) update ssh ``known_hosts``  
-```
-$ ssh-keygen -f ~/.ssh/known_hosts -R "10.1.10.203"
-$ ssh-keyscan 10.1.10.203 >> ~/.ssh/known_hosts
-    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
-    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
-    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
-    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
-    # 10.1.10.203:22 SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
 ```
 
 Execute ansible provisioning, login a user eligible for sudo rights  
