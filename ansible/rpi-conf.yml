@@ -18,9 +18,9 @@
 #      import_role:
 #        name: mod-docker
 
-    - name: Xilinx hw_server
-      import_role:
-        name: mod-xilinxsrv
+#    - name: Xilinx hw_server
+#      import_role:
+#        name: mod-xilinxsrv
 
     - name: X11 setup
       import_role:
