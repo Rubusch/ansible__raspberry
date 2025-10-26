@@ -1,0 +1,14 @@
+lab:
+  location: UNIT10
+
+  USBSerialPort:
+    match:
+      ID_SERIAL_SHORT: FTENC
+      ID_USB_INTERFACE_NUM: '01'
+
+  NetworkInterface: # ethernet
+    ifname: "eth0"
+
+  NetworkService:   # net to RPI
+    address: '10.1.10.161'
+    username: 'pi'

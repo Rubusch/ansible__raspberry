@@ -96,9 +96,15 @@
   block:
     - name: Prepare GPIO26 script
       copy:
-        src: gpio26.sh
-        dest: /usr/bin/gpio26.sh
+        src: _gpio.sh
+        dest: /usr/bin/_gpio.sh
         mode: 755
+
+    - name: Link to GPIO26
+      ansible.builtin.file:
+        src: /usr/bin/_gpio.sh
+        dest: /usr/bin/gpio26.sh
+        state: link
 
     - name: Add GPIO26 systemd service script
       copy:
