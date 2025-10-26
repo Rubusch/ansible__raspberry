@@ -57,13 +57,14 @@
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: Wifi
-  become: 'yes'
-  shell: |
-    rfkill unblock all
-    ifup --force wlan0
-  register: os_info
-  debugger: on_failed
+## TODO rm, when using networkmanager, not needed
+#- name: Wifi
+#  become: 'yes'
+#  shell: |
+#    rfkill unblock all
+#    ifup --force wlan0
+#  register: os_info
+#  debugger: on_failed
 
 - name: DHCP client for wlan0
   become: 'yes'
