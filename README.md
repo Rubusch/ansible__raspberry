@@ -50,11 +50,15 @@ Raspi OS image for Raspi 4 or 3b [64 bit], plug SD card in reader
 ```
 $ mkdir ./downloads
 $ cd ./downloads
+$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-11-19-raspios-bookworm-arm64-lite.img.xz
+$ unxz 2024-11-19-raspios-bookworm-arm64-lite.img.xz
+
+(legacy)
 $ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2024-07-04/2024-07-04-raspios-bookworm-arm64-lite.img.xz
 $ unxz 2024-07-04-raspios-bookworm-arm64-lite.img.xz
 ```
 
-In case of using `Vivado hw_server` download and provide the `Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz` file in `downloads`, too
+In case of using `Vivado hw_server` download and provide the corresponding xilinx vivado lab edition (lin64) e.g. `Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz` file in `downloads`, too
 
 ### 2. SD card: Prepare Secrets
 
@@ -148,6 +152,39 @@ double-check, execute the following to find places to adjust to the current setu
 $ grep '10\.1\.10' -HIirn ./ansible
 $ grep 'unit0' -HIirn ./ansible
 ```
+
+#### 4.1 Configure Network
+
+Since 2025 (end of 2024) `ifuptools2` is not installed anymore on Raspbian by default, thus `/etc/network/interfaces` won't work for more than blocking the `NetworkManager` (...)
+
+=> Configure the network static ip address manually
+- Put the SD card into the RPI
+- Connect serial and ethernet
+- On the serial terminal login, and do the following
+```
+# nmcli con del "Wired connection 1"
+    Connection 'Wired connection 1' (211dbbb9-9bd1-3f7e-98a1-eefc05fbf30f) successfully deleted.
+# nmcli con add con-name "eth0" ifname eth0 type ethernet ip4 10.1.10.203/24
+    Connection 'eth0' (fc2ffed7-a14a-48aa-b77e-4dcb3faa1ffe) successfully added.
+# nmcli con up "eth0"
+    Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/4)
+```
+- Then configure wireless for DHCP connection to local AP
+```
+
+# nmcli radio wifi on
+# nmcli device set wlan0 managed yes
+(in case check rfkill state, NB: when restarting networkmanager rfkill might be there again)
+# nmcli con add con-name "wlan0" ifname wlan0 type wifi ssid "MY_SSID"
+# nmcli con modify wlan0 mode infrastructure
+# nmcli con modify wlan0 wifi-sec.key-mgmt wpa-psk
+# nmcli con modify wlan0 wifi-sec.psk "MY_PSK"
+# nmcli con up wlan0
+
+# reboot
+```
+The RPI should come up showing the correct ip address
+
 TODO: improve this
 
 ### 5. Raspberry: Automized Setup

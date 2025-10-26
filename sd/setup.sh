@@ -28,10 +28,12 @@ test ! -e "$DEV" && die "'$DEV' does not exist!" || true
 if [ $# -gt 1 ]; then
 	HNAME="$2"
 fi
+echo "using hostname '$HNAME'"
 
 if [ $# -eq 3 ]; then
 	IPADDR="$3"
 fi
+echo "using ipaddr '$IPADDR'"
 
 sudo dd if="$IMG" of="$DEV" bs=4M conv=fdatasync status=progress
 sleep 5
@@ -49,18 +51,21 @@ udisksctl mount -b "${DEV}2"
 sudo cp -arfv ./rootfs/* "$ROOTFS/"
 
 ## (1/2) secret: /etc configs
-sudo cp -arfv ./secret/etc "$ROOTFS/"
-## adjustments to hostname and ip are optional
-## since they are modifyable they are provided by "secret"
-## if set, we overwrite the entries in the files accordingly
 sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" ./secret/etc/hosts
 echo "$HNAME" > ./secret/etc/hostname
 if [ IPADDR != "" ]; then
 	if [ -f ./secret/etc/dnsmasq.conf ]; then
 		sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" ./secret/etc/dnsmasq.conf
 	fi
-	sed -i "/ *address /s/.*/    address ${IPADDR}/" ./secret/etc/network/interfaces
+	if [ -f ./secret/etc/NetworkManager/system-connections/eth0.nmconnection ]; then
+		sed -i "/address1=/s/.*/address1=${IPADDR}\/24/" ./secret/etc/NetworkManager/system-connections/eth0.nmconnection
+## FIXME: providing this connection file is not enough, a "wired connection 1" will overwrite this setting
+		sed -i "/^iface eth0/s/.*/#iface eth0.../" ./secret/etc/network/interfaces
+	else
+		sed -i "/ *address /s/.*/    address ${IPADDR}/" ./secret/etc/network/interfaces
+	fi
 fi
+sudo cp -arfv ./secret/etc "$ROOTFS/"
 
 ## (2/2) secret: ~/ configs
 sudo cp -arfv ./secret/home/pi "$ROOTFS/home/"
