@@ -1,9 +1,0 @@
-[Unit]
-Description=Xilinx hw_server on QEMU amd64
-
-[Service]
-ExecStart=/usr/bin/hw_server.sh start
-ExecStop=/usr/bin/hw_server.sh stop
-
-[Install]
-WantedBy=multi-user.target
