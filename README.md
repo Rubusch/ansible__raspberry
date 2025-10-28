@@ -14,7 +14,7 @@ The installation needs a folder *secret* (not tracked) containing the credential
 
 For my embedded automation controller the following shows a final setup:  
 
-- **dhcp client** on wlan0 (with configured wpa_supplicant from *secret*), as uplink
+- **dhcp client** on wlan0 (with configured `wpa_supplicant` from *secret*), as uplink
 - **dhcp server** (dnsmasq) running on eth0 to manage the DUTs
 - rootfs expanded to the entire SD card
 - Serial console login enabled
@@ -46,19 +46,13 @@ $ pip3 install --user ansible
 
 ### 1. Download RPI/OS image (64 bit)
 
-Raspi OS image for Raspi 4 or 3b [64 bit], plug SD card in reader  
+Download a recent Raspi OS image for Raspi 4 or 3b [64 bit], plug SD card in reader  
 ```
 $ mkdir ./downloads
 $ cd ./downloads
 $ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2024-11-19/2024-11-19-raspios-bookworm-arm64-lite.img.xz
 $ unxz 2024-11-19-raspios-bookworm-arm64-lite.img.xz
-
-(legacy)
-$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2024-07-04/2024-07-04-raspios-bookworm-arm64-lite.img.xz
-$ unxz 2024-07-04-raspios-bookworm-arm64-lite.img.xz
 ```
-
-In case of using `Vivado hw_server` download and provide the corresponding xilinx vivado lab edition (lin64) e.g. `Xilinx_Vivado_Lab_Lin_2023.1_0507_1903.tar.gz` file in `downloads`, too
 
 ### 2. SD card: Prepare Secrets
 
@@ -79,56 +73,25 @@ $ tree ./sd/secret/ -a
         └── pi
             ├── .gitconfig
             └── .ssh
-                ├── id_ed25519
-                └── known_hosts
+                └── authorized_keys
 ```
-NB: /etc/dnsmasq.conf is optional
-
-Example: interfaces, e.g. could be extended with further network connections to work, and corresponding `wpa_supplicant` entries.  
-```
-$ cat ./secret/etc/network/interfaces
-    # interfaces(5) file used by ifup(8) and ifdown(8)
-    # Include files from /etc/network/interfaces.d:
-    source /etc/network/interfaces.d
-
-    auto lo
-    iface lo inet loopback
-
-    auto eth0
-    allow-hotplug eth0
-
-    ## dnsmasq as dhcp own server on eth
-    iface eth0 inet static
-    address 10.1.10.33
-    netmask 255.0.0.0
-
-    auto wlan0
-    allow-hotplug wlan0
-    iface wlan0 inet manual
-    wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-    #wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-    wireless-power off
-
-    ## home wifi
-    iface home inet dhcp
-
-    ## demo: dynamic and static setup
-    #iface demosetup inet dhcp
-    #
-    #iface demosetup inet static
-    #    address 192.168.1.222
-    #    netmask 255.255.255.0
-```
+Make sure that networking will work out for ansible, so typically provide:
+- hosts
+- ip address
+- wifi access via `wpa_supplicant`
+- `authorized_keys`
+- hosts needs to be there, but hosts and hostname (in case created) will be updated to the arguments of the `setup.sh` script
+- any further configurations
 
 ### 3. SD card: Flash the minimal Setup
 
-Plug card into card reader. In case configure ./setup.sh to use the 64-bit or the 32-bit Pi OS image.   
+Plug card into the card reader. In case configure ./setup.sh to use the 64-bit or the 32-bit Pi OS image.   
 ```
 $ lsblk
    -> /dev/sdi
 
 $ cd ./sd
-$ ./setup.sh /dev/sdi unit02 10.1.10.33
+$ ./setup.sh /dev/sdi place01 10.1.10.33
     ...
     READY.
 $
@@ -142,12 +105,9 @@ NB: If there is no `READY.` the SD card setup failed.
 - Configure the `rpi-conf.yml` to select which "roles" (modules) shall be added
 
 In case also configure
-- The files in `./ansible/mod-xilinxsrv/files/` according to the setup, e.g. download and place xilinx lab edition in downloads (symlinked)
-- Set a symlink in `./ansible/mod-xilinxsrv/files/downloads` to `../../../downloads` (where the xilnx lab edition needs to be placed)
-- The file `./ansible/mod-xilinxsrv/tasks/main.yml`, uncomment the section of the specific `hw_server` edition and provide xilinx.tar.xz file in downloads
 - The files in `./ansible/mod-labgrid/files/` according to the setup, i.e. hostname, `labgrid-coordinator` IP, CTRL IP, etc. (symlinked)
 
-double-check, execute the following to find places to adjust to the current setup (ip and hostname)
+double-check, execute the following to find places to adjust to the current setup (ip and hostname), e.g.  
 ```
 $ grep '10\.1\.10' -HIirn ./ansible
 $ grep 'unit0' -HIirn ./ansible

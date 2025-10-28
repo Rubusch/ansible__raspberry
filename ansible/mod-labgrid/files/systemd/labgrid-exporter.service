@@ -1,14 +1,15 @@
-## specific to a labgrid-coordinator on 10.1.10.1
+#
 [Unit]
 Description=Labgrid Exporter
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=0
 
 [Service]
 Environment="PYTHONUNBUFFERED=1"
-# Should contain LG_CROSSBAR configuration
+# Should contain LG_COORDINATOR configuration
 EnvironmentFile=-/etc/environment
-ExecStart=/opt/labgrid-venv/bin/labgrid-exporter --hostname 'pi@unit10' -x 'ws://10.1.10.1:20408/ws' /etc/labgrid/exporter.yaml
+ExecStart=/opt/labgrid-venv/bin/labgrid-exporter /etc/labgrid/exporter.yaml
 Restart=on-failure
 RestartForceExitStatus=100
 RestartSec=30

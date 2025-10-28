@@ -22,9 +22,9 @@
 #      import_role:
 #        name: mod-xilinxsrv
 
-    - name: X11 setup
-      import_role:
-        name: mod-x11
+#    - name: X11 setup
+#      import_role:
+#        name: mod-x11
 
 ## NB: not needed for driving (single) relays by gpio
 #    - name: Relay Control

@@ -2,7 +2,7 @@
 ##
 ## provide e.g. /dev/sdh, when there is an /dev/sdh1 and /dev/sdh2
 ## e.g.
-## $ ./setup.sh /dev/sdh UNIT01 10.1.10.33
+## $ ./setup.sh /dev/sdh place01 10.1.10.33
 ##
 ## - provide rootfs secrets and modifyable data under "secret"
 ## - try to make sure you have sudo permissions

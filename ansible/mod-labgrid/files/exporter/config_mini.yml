@@ -10,5 +10,5 @@ lab:
     ifname: "eth0"
 
   NetworkService:   # net to RPI
-    address: '10.1.10.161'
+    address: '192.168.123.33'
     username: 'pi'
