@@ -113,39 +113,42 @@ $ grep '10\.1\.10' -HIirn ./ansible
 $ grep 'unit0' -HIirn ./ansible
 ```
 
-#### 4.1 Configure Network
+#### 4.1 QUICKFIX: Manually Configure Network on the RPi
 
-Since 2025 (end of 2024) `ifuptools2` is not installed anymore on Raspbian by default, thus `/etc/network/interfaces` won't work for more than blocking the `NetworkManager` (...)
+Since 2025 (end of 2024) `ifuptools2` is not installed anymore on Raspbian the default, also the `/etc/network/interfaces` may still block the `NetworkManager`, but cannot drive the interfaces as before (...)  
 
-=> Configure the network static ip address manually
+current QUICKFIX:  
+=> Configure the network static ip address manually, e.g. ip 10.1.10.203/24
 - Put the SD card into the RPI
 - Connect serial and ethernet
 - On the serial terminal login, and do the following
+- Make sure `/etc/network/interfaces` does not contain entries for 'eth0'
+- Make sure `/etc/network/interfaces` does not contain entries for 'wlan0'
 ```
-# nmcli con del "Wired connection 1"
+$ sudo nmcli con del "Wired connection 1"
     Connection 'Wired connection 1' (211dbbb9-9bd1-3f7e-98a1-eefc05fbf30f) successfully deleted.
-# nmcli con add con-name "eth0" ifname eth0 type ethernet ip4 10.1.10.203/24
+$ sudo nmcli con add con-name "eth0" ifname eth0 type ethernet ip4 10.1.10.203/24
     Connection 'eth0' (fc2ffed7-a14a-48aa-b77e-4dcb3faa1ffe) successfully added.
-# nmcli con up "eth0"
+$ sudo nmcli con up "eth0"
     Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/4)
 ```
-- Then configure wireless for DHCP connection to local AP
-```
 
-# nmcli radio wifi on
-# nmcli device set wlan0 managed yes
+Then configure wireless for DHCP connection to local AP
+```
+$ sudo nmcli radio wifi on
+$ sudo nmcli device set wlan0 managed yes
 (in case check rfkill state, NB: when restarting networkmanager rfkill might be there again)
-# nmcli con add con-name "wlan0" ifname wlan0 type wifi ssid "MY_SSID"
-# nmcli con modify wlan0 mode infrastructure
-# nmcli con modify wlan0 wifi-sec.key-mgmt wpa-psk
-# nmcli con modify wlan0 wifi-sec.psk "MY_PSK"
-# nmcli con up wlan0
+$ sudo nmcli con add con-name "wlan0" ifname wlan0 type wifi ssid 'MY_SSID'
+$ sudo nmcli con modify wlan0 mode infrastructure
+$ sudo nmcli con modify wlan0 wifi-sec.key-mgmt wpa-psk
+$ sudo nmcli con modify wlan0 wifi-sec.psk "MY_PSK"
+$ sudo nmcli con up wlan0
 
-# reboot
+$ sudo reboot
 ```
-The RPI should come up showing the correct ip address
+The RPI should come up showing the correct ip address   
 
-TODO: improve this
+TODO: improve this situation by provided configs (sd/secret)
 
 ### 5. Raspberry: Automized Setup
 
@@ -180,8 +183,10 @@ $ cd ./ansible
 $ ansible-playbook -K ./rpi-conf.yml
     BECOME password:
 ```
+- Enter user password
+- Wait ~60 min
 
-In case this will need several restarts, if the provisioning runs into load issues..  
+In case restart, if the provisioning runs into load issues..  
 
 
 ## Usage

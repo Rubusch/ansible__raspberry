@@ -66,11 +66,12 @@
 #  register: os_info
 #  debugger: on_failed
 
-- name: DHCP client for wlan0
-  become: 'yes'
-  shell: |
-    killall dhclient
-    dhclient wlan0
+## in case NetworkManager is not used, provide dhclient and bring up manually
+#- name: DHCP client for wlan0
+#  become: 'yes'
+#  shell: |
+#    killall dhclient
+#    dhclient wlan0
 
 - name: Fix locales
   become: 'yes'
@@ -81,15 +82,15 @@
         cache_valid_time: 3600
         name: locales
 
-    - name: Ensure localisation files for '{{ config_system_locale }}' are available
-      locale_gen:
-        name: "{{ config_system_locale }}"
-        state: present
+    - name: Update locale
+      command: update-locale "LANG={{config_system_locale}}"
 
-    - name: Ensure localisation files for '{{ config_system_language }}' are available
-      locale_gen:
-        name: "{{ config_system_language }}"
-        state: present
+    - name: Generate locale
+      command: locale-gen --purge {{config_system_locale}}
+
+    - name: Reconfigure locales
+      command: dpkg-reconfigure --frontend noninteractive locales
+        state: present;
 
     - name: Get current locale and language configuration
       command: localectl status
@@ -111,11 +112,12 @@
     - name: Reboot
       ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
-  become: 'yes'
-  shell: |
-    killall dhclient
-    dhclient wlan0
+## in case NetworkManager is not used, provide dhclient and bring up manually
+#- name: DHCP client for wlan0
+#  become: 'yes'
+#  shell: |
+#    killall dhclient
+#    dhclient wlan0
 
 - name: Update apt packages
   become: 'yes'
@@ -139,27 +141,29 @@
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
-  become: 'yes'
-  shell: |
-    killall dhclient
-    dhclient wlan0
+## in case NetworkManager is not used, provide dhclient and bring up manually
+#- name: DHCP client for wlan0
+#  become: 'yes'
+#  shell: |
+#    killall dhclient
+#    dhclient wlan0
 
 ## hack: elpa-magit does not install well with other packages...
-- name: Install emacs goodies
-  become: 'yes'
-  ansible.builtin.apt:
-    name: emacs-goodies-el
+#- name: Install emacs goodies
+#  become: 'yes'
+#  ansible.builtin.apt:
+#    name: emacs-goodies-el
 
 - name: Reboot
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
-  become: 'yes'
-  shell: |
-    killall dhclient
-    dhclient wlan0
+## in case NetworkManager is not used, provide dhclient and bring up manually
+#- name: DHCP client for wlan0
+#  become: 'yes'
+#  shell: |
+#    killall dhclient
+#    dhclient wlan0
 
 - name: Enable ssh
   become: 'yes'
@@ -168,11 +172,11 @@
     enabled: true
     masked: no
 
-- name: Disable systemd ModemManager
-  become: 'yes'
-  ansible.builtin.systemd:
-    name: ModemManager.service
-    enabled: false
+#- name: Disable systemd ModemManager
+#  become: 'yes'
+#  ansible.builtin.systemd:
+#    name: ModemManager.service
+#    enabled: false
 
 ## lighttpd is a lightweight replacement for apache2, but often annoys at setup
 #- name: rpi - Enable systemd lighttpd
@@ -207,11 +211,12 @@
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
-  become: 'yes'
-  shell: |
-    killall dhclient
-    dhclient wlan0
+## in case NetworkManager is not used, provide dhclient and bring up manually
+#- name: DHCP client for wlan0
+#  become: 'yes'
+#  shell: |
+#    killall dhclient
+#    dhclient wlan0
 
 - name: All done!
   debug:

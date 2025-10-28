@@ -90,7 +90,7 @@ packages:
   - nmap
   - tio
   - xxd
-  - tftp
+  - tftp-hpa
   - tftpd-hpa
 #  - dnsmasq
   - cmake

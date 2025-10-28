@@ -4,11 +4,12 @@
   become: 'yes'
   ansible.builtin.reboot:
 
-- name: DHCP client for wlan0
-  become: 'yes'
-  shell: |
-    killall dhclient
-    dhclient wlan0
+## in case NetworkManager is not used, provide dhclient and bring up manually
+#- name: DHCP client for wlan0
+#  become: 'yes'
+#  shell: |
+#    killall dhclient
+#    dhclient wlan0
 
 - name: Check usbsdmux already installed
   stat:
