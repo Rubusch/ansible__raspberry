@@ -16,66 +16,54 @@ die()
 ## 64-bit pi OS
 IMG="$( ls ../downloads/*-arm64-lite.img )"
 
-## 32-bit pi OS
-#IMG="$( ls ../downloads/*-armhf-lite.img )"
-
-if [ $# -lt 1 ]; then
+if [ $# -ne 3 ]; then
 	die "usage: ${0} <dev of SD card> [ <hostname> [ <static ip> ]]"
 fi
 DEV="$1"
 test ! -e "$DEV" && die "'$DEV' does not exist!" || true
 
-if [ $# -gt 1 ]; then
-	HNAME="$2"
-fi
+HNAME="$2"
 echo "using hostname '$HNAME'"
 
-if [ $# -eq 3 ]; then
-	IPADDR="$3"
-fi
+IPADDR="$3"
 echo "using ipaddr '$IPADDR'"
 
 sudo dd if="$IMG" of="$DEV" bs=4M conv=fdatasync status=progress
 sleep 5
 
 ## boot
-BOOT="/media/$USER/bootfs"
+BOOT="/run/media/$USER/bootfs"
 udisksctl mount -b "${DEV}1"
 ## /boot [fat32] won't keep protections, which will throw an error -> true
 sudo cp -arfv ./boot/* "$BOOT"/ || true
 udisksctl unmount -b "${DEV}1"
 
 ## rootfs (fix networking for initial ssh connection via eth0)
-ROOTFS="/media/$USER/rootfs"
+ROOTFS="/run/media/$USER/rootfs"
 udisksctl mount -b "${DEV}2"
 sudo cp -arfv ./rootfs/* "$ROOTFS/"
 
-## (1/2) secret: /etc configs
-sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" ./secret/etc/hosts
-echo "$HNAME" > ./secret/etc/hostname
+## secret: /etc configs
+sudo cp -arfv ../secret/* "$ROOTFS/"
+sudo sed -i "/^127.0.1.1/s/.*/127.0.1.1           ${HNAME}/" $ROOTFS/etc/hosts
+echo "$HNAME" | sudo tee $ROOTFS/etc/hostname
 if [ IPADDR != "" ]; then
-	if [ -f ./secret/etc/dnsmasq.conf ]; then
-		sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" ./secret/etc/dnsmasq.conf
+	if [ -f $ROOTFS/etc/dnsmasq.conf ]; then
+		sudo sed -i "/^listen-address=/s/.*/listen-address=::1,127.0.0.1,${IPADDR}/" $ROOTFS/etc/dnsmasq.conf
 	fi
-	if [ -f ./secret/etc/NetworkManager/system-connections/eth0.nmconnection ]; then
-		sed -i "/address1=/s/.*/address1=${IPADDR}\/24/" ./secret/etc/NetworkManager/system-connections/eth0.nmconnection
-## FIXME: providing this connection file is not enough, a "wired connection 1" will overwrite this setting
-		sed -i "/^iface eth0/s/.*/#iface eth0.../" ./secret/etc/network/interfaces
+	if [ -f $ROOTFS/etc/NetworkManager/system-connections/eth0.nmconnection ]; then
+		sudo sed -i "/address1=/s/.*/address1=${IPADDR}\/24/" $ROOTFS/etc/NetworkManager/system-connections/eth0.nmconnection
+		sudo chown root:root $ROOTFS/etc/NetworkManager/system-connections/eth0.nmconnection
+		sudo chmod 600 $ROOTFS/etc/NetworkManager/system-connections/eth0.nmconnection
 	else
-		sed -i "/ *address /s/.*/    address ${IPADDR}/" ./secret/etc/network/interfaces
+		sudo sed -i "/ *address /s/.*/    address ${IPADDR}/" $ROOTFS/etc/network/interfaces
 	fi
 fi
-sudo cp -arfv ./secret/etc "$ROOTFS/"
-
-## (2/2) secret: ~/ configs
-sudo cp -arfv ./secret/home/pi "$ROOTFS/home/"
 sudo chown -R 1000:1000 "$ROOTFS/home/pi"
 test -d "$ROOTFS/home/pi" && sudo chmod 700 "$ROOTFS/home/pi" || true
 test -d "$ROOTFS/home/pi/.ssh" && chmod 700 "$ROOTFS/home/pi/.ssh" || true
 
 ## rootfs - remove dhcpcd (we use dnsmasq)
 sudo rm -fv "$ROOTFS/etc/systemd/system/multi-user.target.wants/dhcpcd.service"
-
 udisksctl unmount -b "${DEV}2"
-
 echo "READY."
