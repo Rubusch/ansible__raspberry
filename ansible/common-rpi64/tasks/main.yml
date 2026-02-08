@@ -27,8 +27,6 @@
   with_items:
     - { src: home/pi/bashrc, dest: /home/pi/.bashrc }
     - { src: home/pi/vimrc, dest: /home/pi/.vimrc }
-    - { src: home/pi/emacsrc, dest: /home/pi/.emacs }
-    - { src: home/pi/emacsstarter.sh, dest: /home/pi/.emacsstarter.sh }
     - { src: home/pi/config/, dest: /home/pi/.config }
 
   ## actually, for python prefer virtualenv to force linking .local (dirty hack)
@@ -125,34 +123,11 @@
     update_cache: 'yes'
     cache_valid_time: 86400 # one day
 
-## hack: elpa-magit does not install well with others
-#- name: Install elpa-magit
-#  become: 'yes'
-#  ansible.builtin.apt:
-#    name: elpa-magit
-
 - name: Install package list
   become: 'yes'
   ansible.builtin.apt:
     pkg: "{{ packages }}"
     state: latest
-
-- name: Reboot
-  become: 'yes'
-  ansible.builtin.reboot:
-
-## in case NetworkManager is not used, provide dhclient and bring up manually
-#- name: DHCP client for wlan0
-#  become: 'yes'
-#  shell: |
-#    killall dhclient
-#    dhclient wlan0
-
-## hack: elpa-magit does not install well with other packages...
-#- name: Install emacs goodies
-#  become: 'yes'
-#  ansible.builtin.apt:
-#    name: emacs-goodies-el
 
 - name: Reboot
   become: 'yes'
@@ -171,25 +146,6 @@
     name: ssh.service
     enabled: true
     masked: no
-
-#- name: Disable systemd ModemManager
-#  become: 'yes'
-#  ansible.builtin.systemd:
-#    name: ModemManager.service
-#    enabled: false
-
-## lighttpd is a lightweight replacement for apache2, but often annoys at setup
-#- name: rpi - Enable systemd lighttpd
-#  become: 'yes'
-#  ansible.builtin.systemd:
-#    name: lighttpd.service
-#    enabled: true
-#
-#- name: rpi - Remove apache2
-#  become: 'yes'
-#  ansible.builtin.apt:
-#    name: apache2
-#    purge: yes
 
 - name: fix timezone to Europe/Zurich
   become: 'yes'

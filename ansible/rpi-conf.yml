@@ -6,13 +6,13 @@
       import_role:
         name: common-rpi64
 
-    - name: Labgrid
-      import_role:
-        name: mod-labgrid
+#    - name: Labgrid
+#      import_role:
+#        name: mod-labgrid
 
-    - name: USB-SD Mux
-      import_role:
-        name: mod-usbsdmux
+#    - name: USB-SD Mux
+#      import_role:
+#        name: mod-usbsdmux
 
 #    - name: Docker setup
 #      import_role:
