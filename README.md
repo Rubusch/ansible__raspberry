@@ -50,8 +50,8 @@ Download a recent Raspi OS image for Raspi 4 or 3b [64 bit], plug SD card in rea
 ```
 $ mkdir ./downloads
 $ cd ./downloads
-$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2025-12-04/2025-12-04-raspios-trixie-arm64-lite.img.xz
-$ unxz 2025-12-04-raspios-trixie-arm64-lite.img.xz
+$ wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2026-04-13/2026-04-13-raspios-trixie-arm64-lite.img.xz
+$ unxz 2026-04-13-raspios-trixie-arm64-lite.img.xz
 ```
 
 ### 2. SD card: Prepare Secrets
@@ -91,7 +91,7 @@ $ lsblk
    -> /dev/sdi
 
 $ cd ./sd
-$ ./setup.sh /dev/sdi place01 10.1.10.33
+$ ./setup.sh /dev/sdi unit01
     ...
     READY.
 $
